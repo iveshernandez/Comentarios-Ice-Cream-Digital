@@ -1,114 +1,215 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portafolio - 100% Funcional</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portafolio - Auto Responder Anti-Spam</title>
 <style>
-*{box-sizing:border-box;font-family:Inter,system-ui}body{background:#0a0a0a;color:#fff;padding:24px;max-width:900px;margin:auto}
-.card{background:#171717;border:1px solid #262626;border-radius:16px;padding:16px;display:flex;gap:14px;align-items:center;margin:12px 0}
+*{box-sizing:border-box;font-family:system-ui}body{background:#0a0a0a;color:#fff;padding:20px;max-width:1000px;margin:auto}
+.card{background:#171717;border:1px solid #262626;border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;margin:10px 0}
 .card.on{border-color:#1877F2;background:#121e35}
-.avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;background:#222}
+.avatar{width:54px;height:54px;border-radius:50%;background:#222;object-fit:cover}
 .btn{background:#1877F2;color:#fff;border:none;padding:12px 20px;border-radius:10px;font-weight:700;cursor:pointer}
-.btn2{background:#222;border:1px solid #333}
-.input{width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:12px;color:#fff;margin:8px 0}
+.btn-green{background:#16a34a} .btn-red{background:#dc2626}
+.input{width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:12px;color:#fff;margin:6px 0}
+.log{background:#111;border:1px solid #222;border-radius:10px;padding:12px;height:300px;overflow:auto;font-size:13px;color:#9ca3af;margin-top:12px}
 .toggle{margin-left:auto;width:48px;height:28px;background:#333;border-radius:20px;position:relative;cursor:pointer}
 .toggle.on{background:#1877F2}
 .toggle:after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:.2s}
 .toggle.on:after{left:23px}
-.badge{background:#052e16;color:#4ade80;border:1px solid #166534;padding:4px 10px;border-radius:20px;font-size:12px}
+.kpi{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:15px 0}
+.kpi div{background:#171717;border:1px solid #262626;border-radius:12px;padding:12px;text-align:center}
 </style>
 </head>
 <body>
-<h1>✅ Dashboard 100% Funcional - Sin Login con popup</h1>
-<p style="color:#888">App ID 2247063756050655 • Trae fotos REALES de tus 8 páginas</p>
+<h1>Dashboard Portafolio - Auto Responder</h1>
+<p style="color:#888">App 2247063756050655 • Anti-spam lento • Fotos reales</p>
 
-<div style="background:#111;border:1px dashed #333;padding:18px;border-radius:12px;margin:20px 0">
-<h3> Paso 1 - Saca tu Token (30 seg, solo una vez):</h3>
-<ol style="color:#ccc;line-height:1.7;margin:10px 0 10px 18px">
-<li>Ve a: <a href="https://developers.facebook.com/tools/explorer/2247063756050655/" target="_blank" style="color:#60a5fa">developers.facebook.com/tools/explorer/2247063756050655/</a></li>
-<li>Arriba selecciona tu App <b>2247063756050655</b></li>
-<li>Abajo en "Permisos" agrega: <code>pages_show_list,pages_read_engagement,pages_manage_engagement,business_management</code></li>
-<li>Dale a <b>"Generar token de acceso"</b> - te pedirá login, acepta</li>
-<li>Copia el token larguísimo que te da (empieza con EAA...)</li>
-</ol>
-<input id="tokenInput" class="input" placeholder="Pega aquí tu token que empieza con EAA...">
-<button class="btn" onclick="cargarPaginas()">Cargar mis 8 páginas REALES ahora →</button>
-<p id="status" style="margin-top:10px;color:#fbbf24"></p>
+<div id="loginBox" style="background:#111;border:1px dashed #333;padding:18px;border-radius:12px;margin:18px 0">
+<input id="token" class="input" placeholder="Pega tu token EAA... de Graph Explorer">
+<button class="btn" onclick="cargarTodo()">Cargar TODAS mis páginas con foto real →</button>
+<p id="status" style="color:#fbbf24;margin-top:8px"></p>
 </div>
 
 <div id="app" style="display:none">
-<div id="perfil" style="display:flex;gap:14px;align-items:center;margin-bottom:20px"></div>
-<div style="display:flex;gap:10px;align-items:center"><h3>Páginas</h3><span id="cont" class="badge">0 conectadas</span><button class="btn btn2" style="margin-left:auto" onclick="logout()">Salir de sesión</button></div>
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div id="perfil"></div>
+<button class="btn" style="background:#222" onclick="logout()">Salir de sesión</button>
+</div>
+
+<div class="kpi">
+<div><b id="totalP">0</b><br><small style="color:#888">Páginas encontradas</small></div>
+<div><b id="activasP">0</b><br><small style="color:#888">Activadas</small></div>
+<div><b id="respP">0</b><br><small style="color:#888">Respuestas enviadas</small></div>
+</div>
+
 <div id="lista"></div>
 
-<h3 style="margin-top:30px">Mensajes Rotativos (tu API responderá diferente siempre)</h3>
+<h3 style="margin-top:22px">Mensajes rotativos (no repetirá el mismo seguido)</h3>
 <div id="msgs"></div>
-<button class="btn btn2" onclick="addMsg()">+ Mensaje</button>
-<button class="btn" onclick="guardar()" style="margin-left:10px">💾 Guardar Configuración</button>
+<button class="btn" style="background:#222" onclick="addMsg()">+ Mensaje</button>
 
-<h3 style="margin-top:30px">Config para tu Backend</h3>
-<pre id="json" style="background:#111;border:1px solid #333;padding:12px;border-radius:10px;overflow:auto;color:#9ca3af"></pre>
+<div style="background:#052e16;border:1px solid #166534;border-radius:12px;padding:16px;margin-top:22px">
+<h3>🤖 Respuesta automática anti-spam</h3>
+<p style="color:#86efac;font-size:13px;margin:8px 0">Contesta 1 comentario cada 60-120 segundos (aleatorio) para no ser detectado como spam. No responde 2 veces al mismo comentario. No responde a sus propios comentarios.</p>
+<label style="font-size:13px;color:#888">Delay entre respuestas (segundos):</label>
+<div style="display:flex;gap:10px"><input id="minDelay" class="input" value="60" style="width:80px"><span style="margin-top:12px">a</span><input id="maxDelay" class="input" value="120" style="width:80px"></div>
+<button id="btnActivar" class="btn btn-green" style="width:100%;margin-top:12px;font-size:16px" onclick="toggleAuto()">▶️ Activar responder comentarios en automático</button>
+</div>
+
+<div class="log" id="log"></div>
 </div>
 
 <script>
-let token = localStorage.getItem('fb_token') || '';
-let paginas = [];
-let conectadas = {};
-let MENSAJES = ["Gracias por tu comentario","que te parecio el video?","desde que pais nos escribes?","saludos, tu comentario es valioso para nosotros","gracias por tu comentario, saludos"];
+let token='', paginas=[], conectadas={}, MENSAJES=["Gracias por tu comentario","que te parecio el video?","desde que pais nos escribes?","saludos, tu comentario es valioso para nosotros","gracias por tu comentario, saludos"], respondidos=new Set(JSON.parse(localStorage.getItem('respondidos')||'[]')), auto=false, timer=null, totalResp=parseInt(localStorage.getItem('totalResp')||'0'), ultimoMsg='', pageTokens={};
 
-if(token){
- document.getElementById('tokenInput').value = token;
- cargarPaginas();
-}
+function log(t){ let d=document.getElementById('log'); d.innerHTML = `[${new Date().toLocaleTimeString()}] ${t}<br>`+d.innerHTML; }
 
-async function cargarPaginas(){
- token = document.getElementById('tokenInput').value.trim();
- if(!token.startsWith('EAA')){ document.getElementById('status').innerText='❌ Token inválido, debe empezar con EAA'; return; }
- localStorage.setItem('fb_token', token);
- document.getElementById('status').innerText='Cargando páginas reales...';
-
+async function cargarTodo(){
+ token=document.getElementById('token').value.trim();
+ if(!token.startsWith('EAA')){ document.getElementById('status').innerText='Token debe empezar con EAA'; return; }
+ localStorage.setItem('fb_token',token);
+ document.getElementById('status').innerText='Buscando en perfil + Business Managers...';
+ let allMap={};
  try{
-   let meRes = await fetch('https://graph.facebook.com/v21.0/me?fields=name,picture.type(large)&access_token='+token);
-   let me = await meRes.json();
+   let meR=await fetch(`https://graph.facebook.com/v21.0/me?fields=name,picture.type(large)&access_token=${token}`);
+   let me=await meR.json();
    if(me.error) throw new Error(me.error.message);
+   document.getElementById('perfil').innerHTML=`<div style="display:flex;gap:12px;align-items:center"><img src="${me.picture.data.url}" class="avatar" style="width:60px;height:60px"><div><b>${me.name}</b><br><small style="color:#4ade80">Conectado</small></div></div>`;
    
-   let pagesRes = await fetch('https://graph.facebook.com/v21.0/me/accounts?fields=name,id,picture.type(large),fan_count,access_token&limit=100&access_token='+token);
-   let pagesData = await pagesRes.json();
-   if(pagesData.error) throw new Error(pagesData.error.message);
+   // 1. /me/accounts
+   let r1=await fetch(`https://graph.facebook.com/v21.0/me/accounts?fields=name,id,picture.type(large),fan_count,access_token&limit=100&access_token=${token}`);
+   let j1=await r1.json();
+   if(j1.data) j1.data.forEach(p=>{ allMap[p.id]=p; pageTokens[p.id]=p.access_token; });
+   
+   // 2. businesses
+   let rb=await fetch(`https://graph.facebook.com/v21.0/me/businesses?fields=id&limit=50&access_token=${token}`);
+   let jb=await rb.json();
+   if(jb.data){
+     for(let b of jb.data){
+       try{
+         let ro=await fetch(`https://graph.facebook.com/v21.0/${b.id}/owned_pages?fields=name,id,picture.type(large),fan_count&limit=100&access_token=${token}`);
+         let jo=await ro.json();
+         if(jo.data) jo.data.forEach(p=>{ if(!allMap[p.id]) allMap[p.id]=p; });
+         let rc=await fetch(`https://graph.facebook.com/v21.0/${b.id}/client_pages?fields=name,id,picture.type(large),fan_count&limit=100&access_token=${token}`);
+         let jc=await rc.json();
+         if(jc.data) jc.data.forEach(p=>{ if(!allMap[p.id]) allMap[p.id]=p; });
+       }catch(e){}
+     }
+   }
+   paginas=Object.values(allMap);
+   // Intenta obtener page token para las que faltan
+   for(let p of paginas){
+     if(!pageTokens[p.id]){
+       try{
+         let rt=await fetch(`https://graph.facebook.com/v21.0/${p.id}?fields=access_token&access_token=${token}`);
+         let jt=await rt.json();
+         if(jt.access_token) pageTokens[p.id]=jt.access_token;
+       }catch(e){}
+     }
+   }
 
-   paginas = pagesData.data;
+   document.getElementById('loginBox').style.display='none';
    document.getElementById('app').style.display='block';
-   document.getElementById('perfil').innerHTML = `<img src="${me.picture.data.url}" class="avatar" style="width:64px;height:64px"><div><b>${me.name}</b><br><small style="color:#4ade80">Conectado - ${paginas.length} páginas encontradas</small></div>`;
+   document.getElementById('totalP').innerText=paginas.length;
+   document.getElementById('respP').innerText=totalResp;
    render();
-   document.getElementById('status').innerText='✅ Cargadas '+paginas.length+' páginas reales con foto real';
- }catch(e){
-   document.getElementById('status').innerText='❌ Error: '+e.message;
- }
+   log(`✅ Cargadas ${paginas.length} páginas con foto real`);
+   document.getElementById('status').innerText='';
+ }catch(e){ document.getElementById('status').innerText='Error: '+e.message; }
 }
 
 function render(){
- document.getElementById('lista').innerHTML = paginas.map(p=>`
+ document.getElementById('lista').innerHTML=paginas.map(p=>`
    <div class="card ${conectadas[p.id]?'on':''}">
      <img src="${p.picture.data.url}" class="avatar">
-     <div><b>${p.name}</b><br><small style="color:#888">${p.id} • ${p.fan_count||0} fans</small></div>
+     <div><b>${p.name}</b><br><small style="color:#888">${p.id} • ${p.fan_count||0} fans ${pageTokens[p.id]?'• Token OK':'• Sin token'}</small></div>
      <div class="toggle ${conectadas[p.id]?'on':''}" onclick="togglePag('${p.id}')"></div>
    </div>
  `).join('');
- document.getElementById('cont').innerText = Object.values(conectadas).filter(Boolean).length + ' conectadas';
+ document.getElementById('activasP').innerText=Object.values(conectadas).filter(Boolean).length;
  renderMsgs();
- updateJson();
 }
+
 function togglePag(id){ conectadas[id]=!conectadas[id]; render(); }
-function renderMsgs(){ document.getElementById('msgs').innerHTML = MENSAJES.map((m,i)=>`<input class="input" value="${m}" onchange="MENSAJES[${i}]=this.value;updateJson()">`).join(''); }
-function addMsg(){ MENSAJES.push('Nuevo mensaje...'); render(); }
-function updateJson(){
- let sel = paginas.filter(p=>conectadas[p.id]);
- let cfg = {app_id:'2247063756050655', paginas: sel.map(p=>({id:p.id,name:p.name,access_token:p.access_token})), mensajes: MENSAJES };
- document.getElementById('json').innerText = JSON.stringify(cfg, null, 2);
+function renderMsgs(){ document.getElementById('msgs').innerHTML=MENSAJES.map((m,i)=>`<input class="input" value="${m}" onchange="MENSAJES[${i}]=this.value">`).join(''); }
+function addMsg(){ MENSAJES.push('Nuevo mensaje...'); renderMsgs(); }
+
+function getRandomMsg(){
+ let disponibles = MENSAJES.filter(m=>m!==ultimoMsg);
+ let msg = disponibles[Math.floor(Math.random()*disponibles.length)];
+ ultimoMsg = msg;
+ return msg;
 }
-function guardar(){ updateJson(); alert('Configuración guardada. Copia el JSON de abajo para tu backend.'); }
+
+async function toggleAuto(){
+ let activas = Object.keys(conectadas).filter(id=>conectadas[id]);
+ if(activas.length===0){ alert('Selecciona al menos 1 página con el toggle'); return; }
+ if(auto){
+   auto=false; clearTimeout(timer); document.getElementById('btnActivar').innerText='▶️ Activar responder comentarios en automático'; document.getElementById('btnActivar').className='btn btn-green'; log('⏸️ Auto-responder pausado'); return;
+ }
+ auto=true;
+ document.getElementById('btnActivar').innerText='⏸️ Pausar (respondiendo lento anti-spam...)';
+ document.getElementById('btnActivar').className='btn btn-red';
+ log(`▶️ Auto-responder ACTIVADO en ${activas.length} páginas. Delay ${document.getElementById('minDelay').value}-${document.getElementById('maxDelay').value}s`);
+ procesar();
+}
+
+async function procesar(){
+ if(!auto) return;
+ let activas = Object.keys(conectadas).filter(id=>conectadas[id]);
+ for(let pageId of activas){
+   try{
+     let pToken = pageTokens[pageId];
+     if(!pToken){ log(`⚠️ Página ${pageId} sin page_access_token, no puede responder`); continue; }
+     // últimos 3 posts de la página
+     let rp=await fetch(`https://graph.facebook.com/v21.0/${pageId}/posts?fields=id&limit=3&access_token=${pToken}`);
+     let jp=await rp.json();
+     if(!jp.data) continue;
+     for(let post of jp.data){
+       let rc=await fetch(`https://graph.facebook.com/v21.0/${post.id}/comments?fields=id,from,message,comments{from}&filter=stream&limit=20&access_token=${pToken}`);
+       let jc=await rc.json();
+       if(!jc.data) continue;
+       for(let c of jc.data){
+         if(respondidos.has(c.id)) continue;
+         if(c.from && c.from.id===pageId) continue; // no responder a si mismo
+         // si ya tiene respuesta de la página, skip
+         if(c.comments && c.comments.data && c.comments.data.some(r=>r.from.id===pageId)){ respondidos.add(c.id); continue; }
+         
+         let msg = getRandomMsg();
+         // Responder
+         let resp = await fetch(`https://graph.facebook.com/v21.0/${c.id}/comments?method=POST&message=${encodeURIComponent(msg)}&access_token=${pToken}`, {method:'POST'});
+         let jr = await resp.json();
+         if(jr.id){
+           respondidos.add(c.id);
+           totalResp++;
+           localStorage.setItem('respondidos', JSON.stringify([...respondidos]));
+           localStorage.setItem('totalResp', totalResp);
+           document.getElementById('respP').innerText=totalResp;
+           log(`💬 Respondió en ${pageId} a comentario ${c.id.substring(0,15)}... : "${msg}"`);
+           // Delay anti-spam aleatorio
+           let min=parseInt(document.getElementById('minDelay').value)||60;
+           let max=parseInt(document.getElementById('maxDelay').value)||120;
+           let delay = (Math.floor(Math.random()*(max-min+1))+min)*1000;
+           log(`⏳ Esperando ${Math.round(delay/1000)}s para no generar spam...`);
+           timer=setTimeout(procesar, delay);
+           return; // sale después de 1 respuesta para ir lento
+         } else {
+           log(`❌ Error respondiendo: ${jr.error?.message}`);
+         }
+       }
+     }
+   }catch(e){ log(`Error en ${pageId}: ${e.message}`); }
+ }
+ // Si no hubo comentarios nuevos, reintenta en 60s
+ log('No hay comentarios nuevos, reintentando en 60s...');
+ timer=setTimeout(procesar, 60000);
+}
+
 function logout(){ localStorage.clear(); location.reload(); }
+
+let savedToken=localStorage.getItem('fb_token');
+if(savedToken){ document.getElementById('token').value=savedToken; }
+
 renderMsgs();
 </script>
 </body>
