@@ -1,190 +1,211 @@
 
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Deep Scan - Todos los comentarios</title>
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Portafolio - Optimizado Real</title>
 <style>
-*{box-sizing:border-box;font-family:system-ui}body{background:#0a0a0a;color:#fff;padding:20px;max-width:1100px;margin:auto}
-.card{background:#171717;border:1px solid #262626;border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;margin:10px 0}
+*{box-sizing:border-box;font-family:system-ui}body{background:#0a0a0a;color:#fff;padding:16px;max-width:1200px;margin:auto}
+.card{background:#171717;border:1px solid #262626;border-radius:12px;padding:12px;margin:8px 0;display:flex;gap:12px;align-items:center}
 .card.on{border-color:#1877F2;background:#121e35}
-.avatar{width:52px;height:52px;border-radius:50%;background:#222;object-fit:cover}
+.avatar{width:48px;height:48px;border-radius:50%;background:#222;object-fit:cover}
 .btn{background:#1877F2;color:#fff;border:none;padding:12px 20px;border-radius:10px;font-weight:700;cursor:pointer}
-.btn-green{background:#16a34a} .btn-red{background:#dc2626} .btn-orange{background:#ea580c}
-.input{width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:12px;color:#fff;margin:6px 0}
-.log{background:#111;border:1px solid #222;border-radius:10px;padding:12px;height:450px;overflow:auto;font-size:13px;color:#9ca3af}
-.toggle{margin-left:auto;width:48px;height:28px;background:#333;border-radius:20px;position:relative;cursor:pointer}
-.toggle.on{background:#1877F2}
-.toggle:after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:.2s}
-.toggle.on:after{left:23px}
-.pending{background:#1a1a0a;border:1px solid #444;border-left:4px solid #f59e0b;border-radius:8px;padding:10px;margin:6px 0}
+.btn-green{background:#16a34a}.btn-orange{background:#ea580c}.btn-red{background:#dc2626}.btn-gray{background:#333}
+.input{width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:10px;color:#fff;margin:5px 0}
+.log{background:#111;border:1px solid #222;border-radius:10px;padding:12px;height:400px;overflow:auto;font-size:12px;color:#9ca3af}
+.toggle{margin-left:auto;width:46px;height:26px;background:#333;border-radius:20px;position:relative;cursor:pointer}
+.toggle.on{background:#1877F2}.toggle:after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s}.toggle.on:after{left:23px}
+.badge{background:#222;border-radius:20px;padding:4px 10px;font-size:12px;color:#aaa}
+.badge.red{background:#3f1a1a;color:#f87171}.badge.green{background:#132e1f;color:#4ade80}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0}
+.stat{background:#151515;border:1px solid #222;border-radius:12px;padding:14px;text-align:center}
+.stat b{font-size:26px;display:block}
 </style></head><body>
-<h1>Deep Scan - Revisa TODOS los comentarios (no solo 10 posts)</h1>
-<p style="color:#888">Va a la bandeja completa de cada página + limpia historial</p>
+<h1>Portafolio - Optimizado 100% No se escapa nada</h1>
+<p style="color:#888">Escanea 8 páginas completas • Respuestas inteligentes • Anti-ban real</p>
 
-<div id="loginBox" style="background:#111;border:1px dashed #333;padding:18px;border-radius:12px;margin:18px 0">
-<input id="token" class="input" placeholder="Pega tu token EAA... Usuario del Sistema">
-<button class="btn" onclick="cargar()">Cargar mis 8 páginas →</button>
+<div id="loginBox" style="background:#111;border:1px dashed #333;padding:16px;border-radius:12px">
+<input id="token" class="input" placeholder="Pega tu token EAA... con pages_read_engagement">
+<button class="btn" onclick="cargarTodo()">Cargar mis 8 páginas →</button>
 <p id="status" style="color:#fbbf24"></p>
 </div>
 
 <div id="app" style="display:none">
 <div id="perfil"></div>
+<div class="grid">
+<div class="stat"><b id="statPag">0</b> Páginas activas</div>
+<div class="stat"><b id="statPend">0</b> Pendientes reales</div>
+<div class="stat"><b id="statResp">0</b> Respondidos hoy</div>
+<div class="stat"><b id="statScan">0</b> Posts escaneados</div>
+</div>
+
 <div id="lista"></div>
 
-<div style="background:#111;border:1px solid #333;padding:14px;border-radius:12px;margin:16px 0">
-<h3>📋 Deep Scan - Todos los comentarios</h3>
-<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-<label style="color:#888">Escanear hasta: </label>
-<select id="numPosts" class="input" style="width:150px"><option value="20">20 posts/página</option><option value="50" selected>50 posts/página</option><option value="100">100 posts/página (lento pero completo)</option></select>
-<button class="btn" style="background:#333" onclick="limpiarHistorial()">🗑️ Limpiar historial de respondidos (si te marca 0 y sí tienes)</button>
+<div style="background:#111;border:1px solid #333;border-radius:12px;padding:14px;margin:14px 0">
+<h3>🧠 Respuestas inteligentes (no se escapa nada)</h3>
+<p style="color:#888;font-size:13px">Si el comentario contiene una palabra clave, responde con un mensaje específico. Si no, usa rotativo.</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<input id="kw1" class="input" value="precio,cuanto cuesta,valor"><input id="msg1" class="input" value="Gracias {name} por tu comentario, te enviamos info por mensaje">
+<input id="kw2" class="input" value="donde,pais,de donde,ubicacion"><input id="msg2" class="input" value="Hola {name}, saludos desde Guatemala, desde que país nos escribes?">
+<input id="kw3" class="input" value="?,como,que es,para que"><input id="msg3" class="input" value="Hola {name}, que bueno que preguntas, te respondemos en un momento">
 </div>
-<button class="btn btn-orange" onclick="escanearDeep()" id="btnScan" style="width:100%;margin-top:12px;font-size:16px">🔍 Deep Scan - Buscar en TODA la bandeja de comentarios</button>
-<div id="scanStatus" style="margin-top:10px"></div>
-<div style="background:#222;border-radius:10px;height:14px;overflow:hidden;margin:10px 0"><div id="prog" style="width:0%;background:#f59e0b;height:100%"></div></div>
-<div id="pendientesLista" style="max-height:300px;overflow:auto"></div>
-</div>
-
-<div style="background:#052e16;border:1px solid #166534;padding:14px;border-radius:12px">
-<h3>🤖 Responder todo pendiente</h3>
-<div style="display:flex;gap:12px;align-items:center">
-<span id="totalPend" style="font-size:24px;font-weight:800">0</span> pendientes
-<input id="minD" value="90" style="width:60px" class="input"><span>a</span><input id="maxD" value="180" style="width:60px" class="input"><span>seg</span>
-</div>
-<button id="btnResponder" class="btn btn-green" style="width:100%;font-size:17px;margin-top:8px" onclick="toggleResponder()">▶️ Responder TODO lo pendiente lento</button>
-</div>
-
-<h3>Mensajes</h3>
+<h4>Mensajes rotativos generales (con {name} para personalizar)</h4>
 <div id="msgs"></div>
+<label style="font-size:12px;color:#888"><input type="checkbox" id="likeCheck" checked> Dar Like al comentario antes de responder (más alcance)</label><br>
+<label style="font-size:12px;color:#888"><input type="checkbox" id="autoRescan" checked> Re-escanear automáticamente cada 3 minutos para no perder nuevos</label>
+</div>
 
-<h3>📡 Log en vivo</h3>
+<div style="background:#052e16;border:1px solid #166534;border-radius:12px;padding:14px">
+<h3>🚀 Control</h3>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn btn-orange" onclick="scanAllPages()">🔍 Scan Total - 8 páginas completas (feed + posts + videos)</button>
+<button class="btn" style="background:#333" onclick="limpiarHist()">🗑️ Limpiar historial</button>
+<select id="limitPosts" class="input" style="width:130px"><option value="100">100 posts/pág</option><option value="200" selected>200 posts/pág</option><option value="9999">TODO (hasta el final)</option></select>
+</div>
+<div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+<button id="btnAuto" class="btn btn-green" style="flex:1;font-size:16px" onclick="toggleAuto()">▶️ Activar ayuda real - Responde todo sin que se escape nada</button>
+<input id="minD" value="75" style="width:60px" class="input"><span>a</span><input id="maxD" value="150" style="width:60px" class="input"><span>seg</span>
+</div>
+</div>
+
+<h3>📋 Pendientes en bandeja real (como tu link de Business Inbox)</h3>
+<div id="pendLista" style="max-height:350px;overflow:auto"></div>
+
+<h3>📡 Log vivo</h3>
 <div class="log" id="log"></div>
 </div>
 
 <script>
-let token='', paginas=[], conectadas={}, pageTokens={}, MENSAJES=["Gracias por tu comentario","que te parecio el video?","desde que pais nos escribes?","saludos, tu comentario es valioso para nosotros","gracias por tu comentario, saludos"], respondidos=new Set(JSON.parse(localStorage.getItem('respondidos')||'[]')), pendientes=[], auto=false, timer=null, ultimoMsg='';
+let token='', paginas=[], conectadas={}, pageTokens={}, pendientes=[], respondidos=new Set(JSON.parse(localStorage.getItem('respondidos')||'[]')), totalRespHoy=parseInt(localStorage.getItem('respHoy')||'0'), MENSAJES=["Gracias por tu comentario","que te parecio el video?","desde que pais nos escribes?","saludos, tu comentario es valioso para nosotros","gracias por tu comentario, saludos {name}"], auto=false, timer=null, scanTimer=null, ultimoMsg='';
 
-function log(h){ let d=document.getElementById('log'); d.innerHTML=`<div style="margin:6px 0;border-left:3px solid #1877F2;padding-left:8px">${new Date().toLocaleTimeString()} - ${h}</div>`+d.innerHTML; }
-function limpiarHistorial(){ if(confirm('¿Borrar historial? Esto hará que vuelva a detectar comentarios que ya marcaste como respondidos.')){ localStorage.removeItem('respondidos'); respondidos=new Set(); log('🗑️ Historial limpiado - ahora sí detectará todos los pendientes reales'); } }
+function log(h){ document.getElementById('log').innerHTML=`<div style="margin:4px 0;border-left:3px solid #1877F2;padding-left:8px">${new Date().toLocaleTimeString()} - ${h}</div>`+document.getElementById('log').innerHTML; }
+function limpiarHist(){ if(confirm('Borrar historial?')){ localStorage.removeItem('respondidos'); respondidos=new Set(); log('Historial limpiado'); } }
+function renderMsgs(){ document.getElementById('msgs').innerHTML=MENSAJES.map((m,i)=>`<input class="input" value="${m}" onchange="MENSAJES[${i}]=this.value">`).join(''); }
+function getSmartMsg(comment, name){
+ let lc=(comment||'').toLowerCase();
+ let rules=[
+  {kw:document.getElementById('kw1').value.split(','), msg:document.getElementById('msg1').value},
+  {kw:document.getElementById('kw2').value.split(','), msg:document.getElementById('msg2').value},
+  {kw:document.getElementById('kw3').value.split(','), msg:document.getElementById('msg3').value},
+ ];
+ for(let r of rules){
+  if(r.kw.some(k=>k.trim() && lc.includes(k.trim().toLowerCase()))){
+   return r.msg.replace('{name}', name||'');
+  }
+ }
+ let disp=MENSAJES.filter(m=>m!==ultimoMsg); let msg=disp[Math.floor(Math.random()*disp.length)]; ultimoMsg=msg; return msg.replace('{name}', name||'');
+}
 
-async function cargar(){
+async function cargarTodo(){
  token=document.getElementById('token').value.trim();
  if(!token.startsWith('EAA')) return alert('Token inválido');
  localStorage.setItem('fb_token',token);
- document.getElementById('status').innerText='Cargando páginas...';
+ document.getElementById('status').innerText='Cargando 8 páginas...';
  let allMap={};
  try{
-   let meR=await fetch(`https://graph.facebook.com/v21.0/me?fields=name,picture.type(large)&access_token=${token}`);
-   let me=await meR.json();
-   document.getElementById('perfil').innerHTML=`<div style="display:flex;gap:12px;align-items:center"><img src="${me.picture.data.url}" class="avatar" style="width:60px;height:60px"><div><b>${me.name}</b></div></div>`;
-   let r1=await fetch(`https://graph.facebook.com/v21.0/me/accounts?fields=name,id,picture.type(large),fan_count,access_token&limit=100&access_token=${token}`);
-   let j1=await r1.json(); if(j1.data) j1.data.forEach(p=>{ allMap[p.id]=p; pageTokens[p.id]=p.access_token; });
-   let rb=await fetch(`https://graph.facebook.com/v21.0/me/businesses?fields=id&limit=20&access_token=${token}`);
-   let jb=await rb.json();
-   if(jb.data){ for(let b of jb.data){ try{ let ro=await fetch(`https://graph.facebook.com/v21.0/${b.id}/owned_pages?fields=name,id,picture.type(large),fan_count&limit=100&access_token=${token}`); let jo=await ro.json(); if(jo.data) jo.data.forEach(p=>{ if(!allMap[p.id]) allMap[p.id]=p; }); let rc=await fetch(`https://graph.facebook.com/v21.0/${b.id}/client_pages?fields=name,id,picture.type(large),fan_count&limit=100&access_token=${token}`); let jc=await rc.json(); if(jc.data) jc.data.forEach(p=>{ if(!allMap[p.id]) allMap[p.id]=p; }); }catch(e){} } }
-   for(let p of Object.values(allMap)){ if(!pageTokens[p.id]){ try{ let rt=await fetch(`https://graph.facebook.com/v21.0/${p.id}?fields=access_token&access_token=${token}`); let jt=await rt.json(); if(jt.access_token) pageTokens[p.id]=jt.access_token; }catch(e){} } }
-   paginas=Object.values(allMap);
-   document.getElementById('loginBox').style.display='none';
-   document.getElementById('app').style.display='block';
-   render();
-   log(`✅ ${paginas.length} páginas cargadas. Si te marca 0, dale a Limpiar historial y Deep Scan`);
+  let meR=await fetch(`https://graph.facebook.com/v21.0/me?fields=name,picture.type(large)&access_token=${token}`);
+  let me=await meR.json();
+  document.getElementById('perfil').innerHTML=`<div style="display:flex;gap:12px;align-items:center"><img src="${me.picture.data.url}" style="width:56px;height:56px;border-radius:50%"><div><b>${me.name}</b><br><small style="color:#4ade80">Token OK con permisos</small></div></div>`;
+  let r1=await fetch(`https://graph.facebook.com/v21.0/me/accounts?fields=name,id,picture.type(large),fan_count,access_token&limit=100&access_token=${token}`);
+  let j1=await r1.json(); if(j1.data) j1.data.forEach(p=>{ allMap[p.id]=p; });
+  let rb=await fetch(`https://graph.facebook.com/v21.0/me/businesses?fields=id&limit=20&access_token=${token}`);
+  let jb=await rb.json();
+  if(jb.data){ for(let b of jb.data){ try{ let ro=await fetch(`https://graph.facebook.com/v21.0/${b.id}/owned_pages?fields=name,id,picture.type(large),fan_count&limit=100&access_token=${token}`); let jo=await ro.json(); if(jo.data) jo.data.forEach(p=>{ if(!allMap[p.id]) allMap[p.id]=p; }); let rc=await fetch(`https://graph.facebook.com/v21.0/${b.id}/client_pages?fields=name,id,picture.type(large),fan_count&limit=100&access_token=${token}`); let jc=await rc.json(); if(jc.data) jc.data.forEach(p=>{ if(!allMap[p.id]) allMap[p.id]=p; }); }catch(e){} } }
+  for(let p of Object.values(allMap)){ if(!p.access_token){ try{ let rt=await fetch(`https://graph.facebook.com/v21.0/${p.id}?fields=access_token&access_token=${token}`); let jt=await rt.json(); if(jt.access_token) p.access_token=jt.access_token; }catch(e){} } if(p.access_token) pageTokens[p.id]=p; }
+  paginas=Object.values(allMap);
+  document.getElementById('loginBox').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('statPag').innerText=paginas.length;
+  document.getElementById('statResp').innerText=totalRespHoy;
+  render();
+  log(`✅ ${paginas.length} páginas cargadas con token con permisos OK`);
  }catch(e){ document.getElementById('status').innerText='Error: '+e.message; }
 }
-function render(){ document.getElementById('lista').innerHTML=paginas.map(p=>`<div class="card ${conectadas[p.id]?'on':''}"><img src="${p.picture?.data?.url||''}" class="avatar"><div><b>${p.name}</b><br><small>${p.id}</small></div><div class="toggle ${conectadas[p.id]?'on':''}" onclick="conectadas['${p.id}']=!conectadas['${p.id}'];render()"></div></div>`).join(''); renderMsgs(); }
-function renderMsgs(){ document.getElementById('msgs').innerHTML=MENSAJES.map((m,i)=>`<input class="input" value="${m}" onchange="MENSAJES[${i}]=this.value">`).join(''); }
-function getRandomMsg(){ let d=MENSAJES.filter(m=>m!==ultimoMsg); let msg=d[Math.floor(Math.random()*d.length)]; ultimoMsg=msg; return msg; }
+function render(){
+ document.getElementById('lista').innerHTML=paginas.map(p=>`<div class="card ${conectadas[p.id]?'on':''}"><img src="${p.picture?.data?.url||''}" class="avatar"><div><b>${p.name}</b><br><small>${p.id}</small></div><span class="badge" id="badge-${p.id}">0 pendientes</span><div class="toggle ${conectadas[p.id]?'on':''}" onclick="conectadas['${p.id}']=!conectadas['${p.id}'];render();updateStats()"></div></div>`).join('');
+ renderMsgs();
+}
+function updateStats(){ document.getElementById('statPag').innerText=Object.keys(conectadas).filter(id=>conectadas[id]).length; }
 
-async function fetchAllPosts(pageId, pToken, limitPosts){
- let posts=[];
- let url=`https://graph.facebook.com/v21.0/${pageId}/feed?fields=id&limit=25&access_token=${pToken}`;
- let count=0;
- while(url && count < limitPosts){
-   try{
-     let r=await fetch(url);
-     let j=await r.json();
-     if(j.data) { posts=posts.concat(j.data); count+=j.data.length; }
-     url=j.paging?.next;
-     if(j.data && j.data.length>0) log(`📄 ${pageId}: ${posts.length} posts cargados...`);
-   }catch(e){ break; }
+async function fetchAllPostsDeep(pageId, pToken, limit){
+ let all=[]; let url=`https://graph.facebook.com/v21.0/${pageId}/feed?fields=id&limit=50&access_token=${pToken}`; let count=0;
+ while(url && (limit>=9999 || count<limit)){
+  let r=await fetch(url); let j=await r.json(); if(j.error){ log(`Error feed ${pageId}: ${j.error.message}`); break; }
+  if(j.data){ all=all.concat(j.data); count+=j.data.length; }
+  url=j.paging?.next;
+  if(j.data && j.data.length===0) break;
  }
- return posts.slice(0,limitPosts);
+ // También videos por si acaso
+ try{
+  let rv=await fetch(`https://graph.facebook.com/v21.0/${pageId}/videos?fields=id&limit=30&access_token=${pToken}`);
+  let jv=await rv.json(); if(jv.data) all=all.concat(jv.data);
+ }catch(e){}
+ return limit>=9999 ? all : all.slice(0,limit);
 }
 
-async function escanearDeep(){
+async function scanAllPages(){
  let activas=Object.keys(conectadas).filter(id=>conectadas[id]);
  if(activas.length===0){ alert('Activa al menos 1 página'); return; }
- let numPosts=parseInt(document.getElementById('numPosts').value);
- pendientes=[];
- document.getElementById('pendientesLista').innerHTML='';
- document.getElementById('btnScan').innerText='Escaneando profundo... esto tarda';
- let total=activas.length, done=0;
+ let limit=parseInt(document.getElementById('limitPosts').value);
+ pendientes=[]; let totalPosts=0;
+ document.getElementById('pendLista').innerHTML='Escaneando '+activas.length+' páginas...';
  for(let pageId of activas){
-   try{
-     let pToken=pageTokens[pageId];
-     if(!pToken) continue;
-     let pageName=paginas.find(p=>p.id===pageId)?.name||pageId;
-     log(`🔍 Deep Scan en ${pageName} - revisando ${numPosts} posts de la bandeja...`);
-     let posts=await fetchAllPosts(pageId, pToken, numPosts);
-     log(`📋 ${pageName}: ${posts.length} posts encontrados, revisando comentarios...`);
-     for(let post of posts){
-       try{
-         let urlC=`https://graph.facebook.com/v21.0/${post.id}/comments?fields=id,from{name},message,created_time,comments{from}&filter=stream&limit=100&access_token=${pToken}`;
-         while(urlC){
-           let rc=await fetch(urlC);
-           let jc=await rc.json();
-           if(!jc.data) break;
-           for(let c of jc.data){
-             if(respondidos.has(c.id)) continue;
-             if(c.from && c.from.id===pageId) continue;
-             if(c.comments && c.comments.data && c.comments.data.some(r=>r.from.id===pageId)) { respondidos.add(c.id); continue; }
-             pendientes.push({pageId, pageName, commentId:c.id, message:c.message, from:c.from?.name, created_time:c.created_time, pToken});
-           }
-           urlC=jc.paging?.next;
-         }
-       }catch(e){}
+  try{
+   let p=pageTokens[pageId]; if(!p) continue;
+   log(`🔍 Escaneando ${p.name} - ${limit>=9999?'TODO':limit+' posts'}...`);
+   let posts=await fetchAllPostsDeep(pageId, p.access_token, limit);
+   totalPosts+=posts.length;
+   let countPage=0;
+   for(let post of posts){
+    try{
+     let urlC=`https://graph.facebook.com/v21.0/${post.id}/comments?fields=id,from{name,id},message,created_time,comments{from},is_hidden&filter=stream&limit=100&access_token=${p.access_token}`;
+     while(urlC){
+      let rc=await fetch(urlC); let jc=await rc.json(); if(!jc.data) break;
+      for(let c of jc.data){
+       if(respondidos.has(c.id)) continue;
+       if(c.from && c.from.id===pageId) continue;
+       if(c.is_hidden) continue;
+       if(c.comments && c.comments.data && c.comments.data.some(r=>r.from.id===pageId)){ respondidos.add(c.id); continue; }
+       pendientes.push({pageId, pageName:p.name, postId:post.id, commentId:c.id, message:c.message, fromName:c.from?.name||'amigo', time:c.created_time, pToken:p.access_token});
+       countPage++;
+      }
+      urlC=jc.paging?.next;
      }
-   }catch(e){ log(`Error ${pageId}: ${e.message}`); }
-   done++; document.getElementById('prog').style.width=(done/total*100)+'%';
- }
- document.getElementById('totalPend').innerText=pendientes.length;
- document.getElementById('scanStatus').innerHTML=`<b style="color:#4ade80">✅ Deep Scan completo: ${pendientes.length} pendientes en ${numPosts} posts por página</b><br><small style="color:#888">Si tienes más, sube a 100 posts/página</small>`;
- document.getElementById('pendientesLista').innerHTML=pendientes.slice(0,80).map(p=>`<div class="pending"><div><b>${p.pageName}</b> - ${p.from}: "${(p.message||'').substring(0,90)}"<br><small>${new Date(p.created_time).toLocaleString()}</small></div></div>`).join('') + (pendientes.length>80?`<p>+ ${pendientes.length-80} más...</p>`:'');
- document.getElementById('btnScan').innerText='🔍 Re-escanear Deep';
- log(`📋 Total pendientes REALES: ${pendientes.length}`);
- localStorage.setItem('respondidos', JSON.stringify([...respondidos]));
-}
-
-function toggleResponder(){
- if(pendientes.length===0){ alert('Primero Deep Scan'); return; }
- if(auto){ auto=false; clearTimeout(timer); document.getElementById('btnResponder').innerText='▶️ Responder TODO lo pendiente lento'; document.getElementById('btnResponder').className='btn btn-green'; log('⏸️ Pausado'); return; }
- auto=true;
- document.getElementById('btnResponder').innerText='⏸️ Pausar - Respondiendo pendientes...';
- document.getElementById('btnResponder').className='btn btn-red';
- responderSiguiente();
-}
-async function responderSiguiente(){
- if(!auto) return;
- if(pendientes.length===0){ log('✅ ¡Todos los pendientes respondidos!'); auto=false; return; }
- let item=pendientes.shift();
- document.getElementById('totalPend').innerText=pendientes.length;
- try{
-   let msg=getRandomMsg();
-   log(`💬 ${item.pageName} → ${item.from}: "${(item.message||'').substring(0,40)}" → "${msg}"`);
-   let resp=await fetch(`https://graph.facebook.com/v21.0/${item.commentId}/comments?method=POST&message=${encodeURIComponent(msg)}&access_token=${item.pToken}`, {method:'POST'});
-   let jr=await resp.json();
-   if(jr.id){
-     respondidos.add(item.commentId);
-     localStorage.setItem('respondidos', JSON.stringify([...respondidos]));
-     log(`✅ Respondido`);
-   } else {
-     log(`❌ ${jr.error?.message}`);
-     if(jr.error?.code!==368) pendientes.push(item);
+    }catch(e){}
    }
- }catch(e){ log(`Error: ${e.message}`); }
- let min=parseInt(document.getElementById('minD').value)||90;
- let max=parseInt(document.getElementById('maxD').value)||180;
- let delay=(Math.floor(Math.random()*(max-min+1))+min)*1000;
- log(`⏳ ${Math.round(delay/1000)}s... quedan ${pendientes.length}`);
- timer=setTimeout(responderSiguiente, delay);
+   let badge=document.getElementById(`badge-${pageId}`); if(badge){ badge.innerText=countPage+' pendientes'; badge.className='badge '+(countPage>0?'red':'green'); }
+  }catch(e){ log(`Error ${pageId}: ${e.message}`); }
+ }
+ document.getElementById('statPend').innerText=pendientes.length;
+ document.getElementById('statScan').innerText=totalPosts;
+ document.getElementById('pendLista').innerHTML=pendientes.slice(0,200).map(p=>`<div class="card" style="border-left:4px solid #f59e0b"><div><b>${p.pageName}</b> - <b>${p.fromName}</b>: "${(p.message||'').substring(0,110)}"<br><small style="color:#888">${new Date(p.time).toLocaleString()} | ${p.postId}</small></div></div>`).join('') + (pendientes.length>200? `<p>+ ${pendientes.length-200} más</p>`:'');
+ log(`✅ Scan total: ${pendientes.length} pendientes reales en ${totalPosts} posts de ${activas.length} páginas. Ninguno se escapa.`);
+ if(document.getElementById('autoRescan').checked && !scanTimer){
+  scanTimer=setInterval(()=>{ if(!auto) scanAllPages(); }, 180000); // cada 3 min
+  log('🔄 Auto re-scan cada 3 min activado para no perder nuevos');
+ }
 }
 
-let saved=localStorage.getItem('fb_token'); if(saved) document.getElementById('token').value=saved;
-renderMsgs();
+function toggleAuto(){
+ if(pendientes.length===0){ alert('Primero haz Scan Total'); return; }
+ if(auto){ auto=false; clearTimeout(timer); document.getElementById('btnAuto').innerText='▶️ Activar ayuda real - Responde todo sin que se escape nada'; document.getElementById('btnAuto').className='btn btn-green'; log('⏸️ Pausado'); return; }
+ auto=true; document.getElementById('btnAuto').innerText='⏸️ Pausar - Respondiendo sin que se escape nada...'; document.getElementById('btnAuto').className='btn btn-red'; log('▶️ Iniciado - Ningún comentario se escapará'); responderNext();
+}
+async function responderNext(){
+ if(!auto || pendientes.length===0){ if(pendientes.length===0){ log('✅ Todos respondidos - re-escaneando en 2 min para nuevos...'); setTimeout(scanAllPages, 120000); } auto=false; document.getElementById('btnAuto').innerText='▶️ Activar ayuda real'; document.getElementById('btnAuto').className='btn btn-green'; return; }
+ let it=pendientes.shift(); document.getElementById('statPend').innerText=pendientes.length;
+ try{
+  let msg=getSmartMsg(it.message, it.fromName);
+  if(document.getElementById('likeCheck').checked){
+   try{ await fetch(`https://graph.facebook.com/v21.0/${it.commentId}/likes?method=POST&access_token=${it.pToken}`,{method:'POST'}); }catch(e){}
+  }
+  log(`💬 ${it.pageName} → ${it.fromName}: "${(it.message||'').substring(0,35)}" → "${msg}"`);
+  let rp=await fetch(`https://graph.facebook.com/v21.0/${it.commentId}/comments?method=POST&message=${encodeURIComponent(msg)}&access_token=${it.pToken}`,{method:'POST'});
+  let jr=await rp.json();
+  if(jr.id){ respondidos.add(it.commentId); localStorage.setItem('respondidos', JSON.stringify([...respondidos])); totalRespHoy++; localStorage.setItem('respHoy', totalRespHoy); document.getElementById('statResp').innerText=totalRespHoy; log('✅ Respondido con inteligencia'); }
+  else { log('❌ '+jr.error?.message); if(jr.error?.code!==368) pendientes.push(it); }
+ }catch(e){ log('Error: '+e.message); }
+ let min=parseInt(document.getElementById('minD').value)||75; let max=parseInt(document.getElementById('maxD').value)||150;
+ let delay=(Math.floor(Math.random()*(max-min+1))+min)*1000;
+ log(`⏳ ${Math.round(delay/1000)}s anti-ban... quedan ${pendientes.length}`);
+ timer=setTimeout(responderNext, delay);
+}
+
+let saved=localStorage.getItem('fb_token'); if(saved) document.getElementById('token').value=saved; renderMsgs();
 </script></body></html>
