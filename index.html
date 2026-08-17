@@ -1,216 +1,166 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portafolio - Auto Responder Anti-Spam</title>
+
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Responder TODO lo pendiente</title>
 <style>
-*{box-sizing:border-box;font-family:system-ui}body{background:#0a0a0a;color:#fff;padding:20px;max-width:1000px;margin:auto}
+*{box-sizing:border-box;font-family:system-ui}body{background:#0a0a0a;color:#fff;padding:20px;max-width:1100px;margin:auto}
 .card{background:#171717;border:1px solid #262626;border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;margin:10px 0}
 .card.on{border-color:#1877F2;background:#121e35}
-.avatar{width:54px;height:54px;border-radius:50%;background:#222;object-fit:cover}
+.avatar{width:52px;height:52px;border-radius:50%;background:#222;object-fit:cover}
 .btn{background:#1877F2;color:#fff;border:none;padding:12px 20px;border-radius:10px;font-weight:700;cursor:pointer}
-.btn-green{background:#16a34a} .btn-red{background:#dc2626}
+.btn-green{background:#16a34a} .btn-red{background:#dc2626} .btn-orange{background:#ea580c}
 .input{width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:12px;color:#fff;margin:6px 0}
-.log{background:#111;border:1px solid #222;border-radius:10px;padding:12px;height:300px;overflow:auto;font-size:13px;color:#9ca3af;margin-top:12px}
+.log{background:#111;border:1px solid #222;border-radius:10px;padding:12px;height:400px;overflow:auto;font-size:13px;color:#9ca3af}
 .toggle{margin-left:auto;width:48px;height:28px;background:#333;border-radius:20px;position:relative;cursor:pointer}
 .toggle.on{background:#1877F2}
 .toggle:after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:.2s}
 .toggle.on:after{left:23px}
-.kpi{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:15px 0}
-.kpi div{background:#171717;border:1px solid #262626;border-radius:12px;padding:12px;text-align:center}
-</style>
-</head>
-<body>
-<h1>Dashboard Portafolio - Auto Responder</h1>
-<p style="color:#888">App 2247063756050655 • Anti-spam lento • Fotos reales</p>
+.pending{background:#1a1a0a;border:1px solid #444;border-left:4px solid #f59e0b;border-radius:8px;padding:10px;margin:6px 0;display:flex;gap:10px;align-items:center}
+.progress{background:#222;border-radius:10px;height:20px;overflow:hidden;margin:12px 0}
+.progress div{background:#16a34a;height:100%;transition:width .3s}
+</style></head><body>
+<h1>Responder TODO lo pendiente - 8 Páginas</h1>
+<p style="color:#888">Escanea todo lo que nunca respondiste y lo responde lento anti-spam</p>
 
 <div id="loginBox" style="background:#111;border:1px dashed #333;padding:18px;border-radius:12px;margin:18px 0">
-<input id="token" class="input" placeholder="Pega tu token EAA... de Graph Explorer">
-<button class="btn" onclick="cargarTodo()">Cargar TODAS mis páginas con foto real →</button>
-<p id="status" style="color:#fbbf24;margin-top:8px"></p>
+<input id="token" class="input" placeholder="Pega tu token EAA... Usuario del Sistema">
+<button class="btn" onclick="cargar()">Cargar mis 8 páginas →</button>
+<p id="status" style="color:#fbbf24"></p>
 </div>
 
 <div id="app" style="display:none">
-<div style="display:flex;justify-content:space-between;align-items:center">
 <div id="perfil"></div>
-<button class="btn" style="background:#222" onclick="logout()">Salir de sesión</button>
-</div>
-
-<div class="kpi">
-<div><b id="totalP">0</b><br><small style="color:#888">Páginas encontradas</small></div>
-<div><b id="activasP">0</b><br><small style="color:#888">Activadas</small></div>
-<div><b id="respP">0</b><br><small style="color:#888">Respuestas enviadas</small></div>
-</div>
-
 <div id="lista"></div>
 
-<h3 style="margin-top:22px">Mensajes rotativos (no repetirá el mismo seguido)</h3>
-<div id="msgs"></div>
-<button class="btn" style="background:#222" onclick="addMsg()">+ Mensaje</button>
-
-<div style="background:#052e16;border:1px solid #166534;border-radius:12px;padding:16px;margin-top:22px">
-<h3>🤖 Respuesta automática anti-spam</h3>
-<p style="color:#86efac;font-size:13px;margin:8px 0">Contesta 1 comentario cada 60-120 segundos (aleatorio) para no ser detectado como spam. No responde 2 veces al mismo comentario. No responde a sus propios comentarios.</p>
-<label style="font-size:13px;color:#888">Delay entre respuestas (segundos):</label>
-<div style="display:flex;gap:10px"><input id="minDelay" class="input" value="60" style="width:80px"><span style="margin-top:12px">a</span><input id="maxDelay" class="input" value="120" style="width:80px"></div>
-<button id="btnActivar" class="btn btn-green" style="width:100%;margin-top:12px;font-size:16px" onclick="toggleAuto()">▶️ Activar responder comentarios en automático</button>
+<div style="background:#111;border:1px solid #333;padding:14px;border-radius:12px;margin:16px 0">
+<h3>📋 Paso 1: Escanear pendientes</h3>
+<p style="color:#888;font-size:13px">Busca en los últimos 10 posts de cada página todos los comentarios que nunca respondiste (viejos y nuevos)</p>
+<button class="btn btn-orange" onclick="escanearPendientes()" id="btnScan">🔍 Escanear TODO lo pendiente en mis 8 páginas</button>
+<div id="scanStatus"></div>
+<div class="progress"><div id="prog" style="width:0%"></div></div>
+<div id="pendientesLista"></div>
 </div>
 
+<div style="background:#052e16;border:1px solid #166534;padding:14px;border-radius:12px">
+<h3>🤖 Paso 2: Responder todo</h3>
+<div style="display:flex;gap:12px;align-items:center;margin:8px 0">
+<span id="totalPend" style="font-size:24px;font-weight:800">0</span> comentarios pendientes
+<span style="margin-left:auto;color:#86efac">Delay: </span><input id="minD" value="90" style="width:60px" class="input"><span>a</span><input id="maxD" value="180" style="width:60px" class="input"><span>seg (recomendado 90-180 para no spam)</span>
+</div>
+<button id="btnResponder" class="btn btn-green" style="width:100%;font-size:17px" onclick="toggleResponderTodo()">▶️ Responder TODO lo pendiente lento anti-spam</button>
+</div>
+
+<h3 style="margin-top:18px">Mensajes rotativos</h3>
+<div id="msgs"></div>
+
+<h3>📡 En vivo:</h3>
 <div class="log" id="log"></div>
 </div>
 
 <script>
-let token='', paginas=[], conectadas={}, MENSAJES=["Gracias por tu comentario","que te parecio el video?","desde que pais nos escribes?","saludos, tu comentario es valioso para nosotros","gracias por tu comentario, saludos"], respondidos=new Set(JSON.parse(localStorage.getItem('respondidos')||'[]')), auto=false, timer=null, totalResp=parseInt(localStorage.getItem('totalResp')||'0'), ultimoMsg='', pageTokens={};
+let token='', paginas=[], conectadas={}, pageTokens={}, MENSAJES=["Gracias por tu comentario","que te parecio el video?","desde que pais nos escribes?","saludos, tu comentario es valioso para nosotros","gracias por tu comentario, saludos"], respondidos=new Set(JSON.parse(localStorage.getItem('respondidos')||'[]')), pendientes=[], auto=false, timer=null, ultimoMsg='', totalResp=0;
 
-function log(t){ let d=document.getElementById('log'); d.innerHTML = `[${new Date().toLocaleTimeString()}] ${t}<br>`+d.innerHTML; }
+function log(h){ let d=document.getElementById('log'); d.innerHTML=`<div style="margin:6px 0;border-left:3px solid #1877F2;padding-left:8px">${new Date().toLocaleTimeString()} - ${h}</div>`+d.innerHTML; }
 
-async function cargarTodo(){
+async function cargar(){
  token=document.getElementById('token').value.trim();
- if(!token.startsWith('EAA')){ document.getElementById('status').innerText='Token debe empezar con EAA'; return; }
+ if(!token.startsWith('EAA')) return alert('Token inválido');
  localStorage.setItem('fb_token',token);
- document.getElementById('status').innerText='Buscando en perfil + Business Managers...';
+ document.getElementById('status').innerText='Cargando páginas...';
  let allMap={};
  try{
    let meR=await fetch(`https://graph.facebook.com/v21.0/me?fields=name,picture.type(large)&access_token=${token}`);
    let me=await meR.json();
-   if(me.error) throw new Error(me.error.message);
-   document.getElementById('perfil').innerHTML=`<div style="display:flex;gap:12px;align-items:center"><img src="${me.picture.data.url}" class="avatar" style="width:60px;height:60px"><div><b>${me.name}</b><br><small style="color:#4ade80">Conectado</small></div></div>`;
-   
-   // 1. /me/accounts
+   document.getElementById('perfil').innerHTML=`<div style="display:flex;gap:12px;align-items:center"><img src="${me.picture.data.url}" class="avatar" style="width:60px;height:60px"><div><b>${me.name}</b></div></div>`;
    let r1=await fetch(`https://graph.facebook.com/v21.0/me/accounts?fields=name,id,picture.type(large),fan_count,access_token&limit=100&access_token=${token}`);
-   let j1=await r1.json();
-   if(j1.data) j1.data.forEach(p=>{ allMap[p.id]=p; pageTokens[p.id]=p.access_token; });
-   
-   // 2. businesses
-   let rb=await fetch(`https://graph.facebook.com/v21.0/me/businesses?fields=id&limit=50&access_token=${token}`);
+   let j1=await r1.json(); if(j1.data) j1.data.forEach(p=>{ allMap[p.id]=p; pageTokens[p.id]=p.access_token; });
+   let rb=await fetch(`https://graph.facebook.com/v21.0/me/businesses?fields=id&limit=20&access_token=${token}`);
    let jb=await rb.json();
-   if(jb.data){
-     for(let b of jb.data){
-       try{
-         let ro=await fetch(`https://graph.facebook.com/v21.0/${b.id}/owned_pages?fields=name,id,picture.type(large),fan_count&limit=100&access_token=${token}`);
-         let jo=await ro.json();
-         if(jo.data) jo.data.forEach(p=>{ if(!allMap[p.id]) allMap[p.id]=p; });
-         let rc=await fetch(`https://graph.facebook.com/v21.0/${b.id}/client_pages?fields=name,id,picture.type(large),fan_count&limit=100&access_token=${token}`);
-         let jc=await rc.json();
-         if(jc.data) jc.data.forEach(p=>{ if(!allMap[p.id]) allMap[p.id]=p; });
-       }catch(e){}
-     }
-   }
+   if(jb.data){ for(let b of jb.data){ try{ let ro=await fetch(`https://graph.facebook.com/v21.0/${b.id}/owned_pages?fields=name,id,picture.type(large),fan_count&limit=100&access_token=${token}`); let jo=await ro.json(); if(jo.data) jo.data.forEach(p=>{ if(!allMap[p.id]) allMap[p.id]=p; }); let rc=await fetch(`https://graph.facebook.com/v21.0/${b.id}/client_pages?fields=name,id,picture.type(large),fan_count&limit=100&access_token=${token}`); let jc=await rc.json(); if(jc.data) jc.data.forEach(p=>{ if(!allMap[p.id]) allMap[p.id]=p; }); }catch(e){} } }
+   for(let p of Object.values(allMap)){ if(!pageTokens[p.id]){ try{ let rt=await fetch(`https://graph.facebook.com/v21.0/${p.id}?fields=access_token&access_token=${token}`); let jt=await rt.json(); if(jt.access_token) pageTokens[p.id]=jt.access_token; }catch(e){} } }
    paginas=Object.values(allMap);
-   // Intenta obtener page token para las que faltan
-   for(let p of paginas){
-     if(!pageTokens[p.id]){
-       try{
-         let rt=await fetch(`https://graph.facebook.com/v21.0/${p.id}?fields=access_token&access_token=${token}`);
-         let jt=await rt.json();
-         if(jt.access_token) pageTokens[p.id]=jt.access_token;
-       }catch(e){}
-     }
-   }
-
    document.getElementById('loginBox').style.display='none';
    document.getElementById('app').style.display='block';
-   document.getElementById('totalP').innerText=paginas.length;
-   document.getElementById('respP').innerText=totalResp;
    render();
-   log(`✅ Cargadas ${paginas.length} páginas con foto real`);
-   document.getElementById('status').innerText='';
+   log(`✅ ${paginas.length} páginas cargadas`);
  }catch(e){ document.getElementById('status').innerText='Error: '+e.message; }
 }
-
-function render(){
- document.getElementById('lista').innerHTML=paginas.map(p=>`
-   <div class="card ${conectadas[p.id]?'on':''}">
-     <img src="${p.picture.data.url}" class="avatar">
-     <div><b>${p.name}</b><br><small style="color:#888">${p.id} • ${p.fan_count||0} fans ${pageTokens[p.id]?'• Token OK':'• Sin token'}</small></div>
-     <div class="toggle ${conectadas[p.id]?'on':''}" onclick="togglePag('${p.id}')"></div>
-   </div>
- `).join('');
- document.getElementById('activasP').innerText=Object.values(conectadas).filter(Boolean).length;
- renderMsgs();
-}
-
-function togglePag(id){ conectadas[id]=!conectadas[id]; render(); }
+function render(){ document.getElementById('lista').innerHTML=paginas.map(p=>`<div class="card ${conectadas[p.id]?'on':''}"><img src="${p.picture?.data?.url||''}" class="avatar"><div><b>${p.name}</b><br><small>${p.id}</small></div><div class="toggle ${conectadas[p.id]?'on':''}" onclick="conectadas['${p.id}']=!conectadas['${p.id}'];render()"></div></div>`).join(''); renderMsgs(); }
 function renderMsgs(){ document.getElementById('msgs').innerHTML=MENSAJES.map((m,i)=>`<input class="input" value="${m}" onchange="MENSAJES[${i}]=this.value">`).join(''); }
-function addMsg(){ MENSAJES.push('Nuevo mensaje...'); renderMsgs(); }
+function getRandomMsg(){ let d=MENSAJES.filter(m=>m!==ultimoMsg); let msg=d[Math.floor(Math.random()*d.length)]; ultimoMsg=msg; return msg; }
 
-function getRandomMsg(){
- let disponibles = MENSAJES.filter(m=>m!==ultimoMsg);
- let msg = disponibles[Math.floor(Math.random()*disponibles.length)];
- ultimoMsg = msg;
- return msg;
-}
-
-async function toggleAuto(){
- let activas = Object.keys(conectadas).filter(id=>conectadas[id]);
- if(activas.length===0){ alert('Selecciona al menos 1 página con el toggle'); return; }
- if(auto){
-   auto=false; clearTimeout(timer); document.getElementById('btnActivar').innerText='▶️ Activar responder comentarios en automático'; document.getElementById('btnActivar').className='btn btn-green'; log('⏸️ Auto-responder pausado'); return;
- }
- auto=true;
- document.getElementById('btnActivar').innerText='⏸️ Pausar (respondiendo lento anti-spam...)';
- document.getElementById('btnActivar').className='btn btn-red';
- log(`▶️ Auto-responder ACTIVADO en ${activas.length} páginas. Delay ${document.getElementById('minDelay').value}-${document.getElementById('maxDelay').value}s`);
- procesar();
-}
-
-async function procesar(){
- if(!auto) return;
- let activas = Object.keys(conectadas).filter(id=>conectadas[id]);
+async function escanearPendientes(){
+ let activas=Object.keys(conectadas).filter(id=>conectadas[id]);
+ if(activas.length===0){ alert('Activa al menos 1 página con el toggle'); return; }
+ pendientes=[];
+ document.getElementById('pendientesLista').innerHTML='';
+ document.getElementById('btnScan').innerText='Escaneando...';
+ let total=activas.length, done=0;
  for(let pageId of activas){
    try{
-     let pToken = pageTokens[pageId];
-     if(!pToken){ log(`⚠️ Página ${pageId} sin page_access_token, no puede responder`); continue; }
-     // últimos 3 posts de la página
-     let rp=await fetch(`https://graph.facebook.com/v21.0/${pageId}/posts?fields=id&limit=3&access_token=${pToken}`);
+     let pToken=pageTokens[pageId];
+     if(!pToken) continue;
+     log(`🔍 Escaneando ${paginas.find(p=>p.id===pageId)?.name}...`);
+     let rp=await fetch(`https://graph.facebook.com/v21.0/${pageId}/posts?fields=id&limit=10&access_token=${pToken}`);
      let jp=await rp.json();
      if(!jp.data) continue;
      for(let post of jp.data){
-       let rc=await fetch(`https://graph.facebook.com/v21.0/${post.id}/comments?fields=id,from,message,comments{from}&filter=stream&limit=20&access_token=${pToken}`);
+       let rc=await fetch(`https://graph.facebook.com/v21.0/${post.id}/comments?fields=id,from{name},message,created_time,comments{from}&filter=stream&limit=50&access_token=${pToken}`);
        let jc=await rc.json();
        if(!jc.data) continue;
        for(let c of jc.data){
          if(respondidos.has(c.id)) continue;
-         if(c.from && c.from.id===pageId) continue; // no responder a si mismo
-         // si ya tiene respuesta de la página, skip
+         if(c.from && c.from.id===pageId) continue;
          if(c.comments && c.comments.data && c.comments.data.some(r=>r.from.id===pageId)){ respondidos.add(c.id); continue; }
-         
-         let msg = getRandomMsg();
-         // Responder
-         let resp = await fetch(`https://graph.facebook.com/v21.0/${c.id}/comments?method=POST&message=${encodeURIComponent(msg)}&access_token=${pToken}`, {method:'POST'});
-         let jr = await resp.json();
-         if(jr.id){
-           respondidos.add(c.id);
-           totalResp++;
-           localStorage.setItem('respondidos', JSON.stringify([...respondidos]));
-           localStorage.setItem('totalResp', totalResp);
-           document.getElementById('respP').innerText=totalResp;
-           log(`💬 Respondió en ${pageId} a comentario ${c.id.substring(0,15)}... : "${msg}"`);
-           // Delay anti-spam aleatorio
-           let min=parseInt(document.getElementById('minDelay').value)||60;
-           let max=parseInt(document.getElementById('maxDelay').value)||120;
-           let delay = (Math.floor(Math.random()*(max-min+1))+min)*1000;
-           log(`⏳ Esperando ${Math.round(delay/1000)}s para no generar spam...`);
-           timer=setTimeout(procesar, delay);
-           return; // sale después de 1 respuesta para ir lento
-         } else {
-           log(`❌ Error respondiendo: ${jr.error?.message}`);
-         }
+         pendientes.push({pageId, pageName: paginas.find(p=>p.id===pageId)?.name, commentId:c.id, message:c.message, from:c.from?.name, created_time:c.created_time, pToken});
        }
      }
-   }catch(e){ log(`Error en ${pageId}: ${e.message}`); }
+   }catch(e){ log(`Error ${pageId}: ${e.message}`); }
+   done++; document.getElementById('prog').style.width=(done/total*100)+'%';
  }
- // Si no hubo comentarios nuevos, reintenta en 60s
- log('No hay comentarios nuevos, reintentando en 60s...');
- timer=setTimeout(procesar, 60000);
+ document.getElementById('totalPend').innerText=pendientes.length;
+ document.getElementById('scanStatus').innerHTML=`<b style="color:#4ade80">✅ Escaneo completo: ${pendientes.length} comentarios pendientes encontrados</b>`;
+ document.getElementById('pendientesLista').innerHTML=pendientes.slice(0,50).map(p=>`<div class="pending"><div><b>${p.pageName}</b> - ${p.from}: "${(p.message||'').substring(0,80)}"<br><small style="color:#888">${new Date(p.created_time).toLocaleString()}</small></div></div>`).join('') + (pendientes.length>50?`<p style="color:#888">+ ${pendientes.length-50} más...</p>`:'');
+ document.getElementById('btnScan').innerText='🔍 Re-escanear pendientes';
+ log(`📋 Total pendientes: ${pendientes.length}`);
 }
 
-function logout(){ localStorage.clear(); location.reload(); }
+function toggleResponderTodo(){
+ if(pendientes.length===0){ alert('Primero escanea pendientes'); return; }
+ if(auto){ auto=false; clearTimeout(timer); document.getElementById('btnResponder').innerText='▶️ Responder TODO lo pendiente lento anti-spam'; document.getElementById('btnResponder').className='btn btn-green'; log('⏸️ Pausado'); return; }
+ auto=true;
+ document.getElementById('btnResponder').innerText='⏸️ Pausar - Respondiendo todo pendiente...';
+ document.getElementById('btnResponder').className='btn btn-red';
+ log(`▶️ Iniciando respuesta a ${pendientes.length} pendientes, lento anti-spam`);
+ responderSiguiente();
+}
 
-let savedToken=localStorage.getItem('fb_token');
-if(savedToken){ document.getElementById('token').value=savedToken; }
+async function responderSiguiente(){
+ if(!auto) return;
+ if(pendientes.length===0){ log('✅ ¡Todos los pendientes respondidos!'); auto=false; document.getElementById('btnResponder').innerText='✅ Todo respondido'; return; }
+ let item = pendientes.shift();
+ document.getElementById('totalPend').innerText=pendientes.length;
+ document.getElementById('prog').style.width=((1 - pendientes.length/(pendientes.length+1))*100)+'%'; // dummy
+ try{
+   let msg=getRandomMsg();
+   log(`💬 Respondiendo en ${item.pageName} a ${item.from}: "${(item.message||'').substring(0,40)}" → "${msg}"`);
+   let resp=await fetch(`https://graph.facebook.com/v21.0/${item.commentId}/comments?method=POST&message=${encodeURIComponent(msg)}&access_token=${item.pToken}`, {method:'POST'});
+   let jr=await resp.json();
+   if(jr.id){
+     respondidos.add(item.commentId);
+     localStorage.setItem('respondidos', JSON.stringify([...respondidos]));
+     log(`✅ Respondido`);
+   } else {
+     log(`❌ Error: ${jr.error?.message} - se reintentará después`);
+     pendientes.push(item);
+   }
+ }catch(e){ log(`Error: ${e.message}`); }
+ let min=parseInt(document.getElementById('minD').value)||90;
+ let max=parseInt(document.getElementById('maxD').value)||180;
+ let delay=(Math.floor(Math.random()*(max-min+1))+min)*1000;
+ log(`⏳ Esperando ${Math.round(delay/1000)}s... Quedan ${pendientes.length}`);
+ timer=setTimeout(responderSiguiente, delay);
+}
 
+let saved=localStorage.getItem('fb_token'); if(saved) document.getElementById('token').value=saved;
 renderMsgs();
-</script>
-</body>
-</html>
+</script></body></html>
