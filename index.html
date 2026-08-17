@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portafolio Eduardo - FIX Vercel</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui}
+body{background:#0a0a0a;color:white;padding:30px}
+.btn{background:#1877F2;color:white;border:none;padding:14px 26px;border-radius:10px;font-weight:700;cursor:pointer;font-size:16px}
+.btn-logout{background:#222;border:1px solid #333}
+.card{background:#171717;border:1px solid #262626;border-radius:16px;padding:18px;display:flex;align-items:center;gap:14px;margin:12px 0}
+.card.on{border-color:#1877F2;background:#121a2a}
+.avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;background:#333}
+.toggle{margin-left:auto;width:48px;height:28px;background:#333;border-radius:20px;position:relative;cursor:pointer}
+.toggle.on{background:#1877F2}
+.toggle:after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;background:white;border-radius:50%;transition:.3s}
+.toggle.on:after{left:23px}
+</style>
+</head>
+<body>
+<h1>Portafolio Eduardo - Login FIX Vercel</h1>
+<p style="color:#888;margin:8px 0 20px">App ID: 2247063756050655 • Modo redirección (no popup)</p>
+
+<div id="loginSection" style="text-align:center;margin-top:60px">
+<button class="btn" onclick="loginRedirect()">Entrar con Facebook - Pedir Permisos Reales</button>
+<p id="error" style="color:#f87171;margin-top:15px"></p>
+<p style="color:#666;font-size:13px;margin-top:20px;max-width:600px;margin-left:auto;margin-right:auto">
+Si al dar click te manda a Facebook y luego regresa en blanco, es porque en developers.facebook.com > App 2247063756050655 > Facebook Login > URIs válidas NO tienes puesto tu dominio de Vercel EXACTO con / al final. Pon: <br>
+<code id="currentUrl" style="background:#111;padding:6px;display:block;margin-top:8px;word-break:break-all"></code>
+</p>
+</div>
+
+<div id="appSection" style="display:none">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div id="perfilReal" style="display:flex;align-items:center;gap:14px"></div>
+<button class="btn btn-logout" onclick="logout()">Salir de sesión</button>
+</div>
+<h3 style="margin:25px 0 10px">Tus páginas reales con foto</h3>
+<div id="paginasReales"></div>
+</div>
+
+<script>
+const APP_ID = '2247063756050655';
+const REDIRECT_URI = window.location.origin + window.location.pathname;
+document.getElementById('currentUrl').innerText = REDIRECT_URI;
+
+let accessToken = null;
+let paginas = [];
+let conectadas = {};
+
+function loginRedirect(){
+  const scope = 'pages_show_list,pages_read_engagement,pages_manage_engagement,business_management,public_profile';
+  const oauthUrl = 'https://www.facebook.com/v21.0/dialog/oauth?client_id='+APP_ID+'&redirect_uri='+encodeURIComponent(REDIRECT_URI)+'&scope='+scope+'&response_type=token&auth_type=rerequest';
+  window.location.href = oauthUrl;
+}
+
+function parseTokenFromUrl(){
+  const hash = window.location.hash.substring(1);
+  const params = new URLSearchParams(hash);
+  return params.get('access_token');
+}
+
+function logout(){
+  localStorage.clear();
+  window.location.hash = '';
+  window.location.reload();
+}
+
+async function fetchMe(token){
+  let r = await fetch('https://graph.facebook.com/v21.0/me?fields=name,picture.type(large)&access_token='+token);
+  return await r.json();
+}
+async function fetchPages(token){
+  let r = await fetch('https://graph.facebook.com/v21.0/me/accounts?fields=name,id,picture.type(large),fan_count,access_token&limit=100&access_token='+token);
+  return await r.json();
+}
+
+function renderPaginas(){
+  document.getElementById('paginasReales').innerHTML = paginas.map(p=>`
+    <div class="card ${conectadas[p.id]?'on':''}">
+      <img src="${p.picture.data.url}" class="avatar">
+      <div><b>${p.name}</b><br><small style="color:#888">${p.id} • ${p.fan_count||0} seguidores</small></div>
+      <div class="toggle ${conectadas[p.id]?'on':''}" onclick="togglePag('${p.id}')"></div>
+    </div>
+  `).join('');
+}
+
+function togglePag(id){ conectadas[id]=!conectadas[id]; renderPaginas(); }
+
+window.onload = async function(){
+  let token = parseTokenFromUrl();
+  if(token){
+    accessToken = token;
+    // Limpia la URL para que no se vea el token
+    window.history.replaceState({}, document.title, REDIRECT_URI);
+    document.getElementById('loginSection').style.display='none';
+    document.getElementById('appSection').style.display='block';
+    try{
+      let me = await fetchMe(token);
+      document.getElementById('perfilReal').innerHTML = `<img src="${me.picture.data.url}" class="avatar" style="width:64px;height:64px"><div><b>${me.name}</b><br><small style="color:#4ade80">Conectado con éxito</small></div>`;
+      let pagesRes = await fetchPages(token);
+      paginas = pagesRes.data || [];
+      if(paginas.length===0){
+        document.getElementById('paginasReales').innerHTML = '<div style="background:#2a1212;padding:20px;border-radius:12px">No se encontraron páginas. Tu App 2247063756050655 no está en el Business Manager donde están tus 8 páginas. Ve a business.facebook.com > Cuentas > Apps > Agrega '+APP_ID+'</div>';
+      } else {
+        renderPaginas();
+      }
+    }catch(e){
+      document.getElementById('error').innerText = 'Error: ' + e.message + ' - Revisa que tu dominio de Vercel esté en App > Facebook Login > URIs válidas';
+    }
+  }
+}
+</script>
+</body>
+</html>
