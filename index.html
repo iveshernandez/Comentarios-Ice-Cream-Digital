@@ -1,124 +1,63 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FIX Cantidades Reales</title>
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Intercalado Viejo->Nuevo</title>
 <style>body{background:#0a0a0a;color:#fff;font-family:system-ui;padding:14px;max-width:1200px;margin:auto}.status-bar{background:#151515;border:1px solid #262626;border-radius:14px;padding:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0;position:sticky;top:8px;z-index:99}.dot{width:11px;height:11px;border-radius:50%}.dot.green{background:#22c55e;animation:pulse 1.5s infinite}.dot.yellow{background:#eab308;animation:pulse 1.5s infinite}.dot.gray{background:#555}@keyframes pulse{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}.progress{height:9px;background:#222;border-radius:10px;overflow:hidden;flex:1}.progress-bar{height:100%;background:#1877F2;width:0%}.card{background:#171717;border:1px solid #262626;border-radius:12px;padding:11px;margin:5px 0;display:flex;gap:10px;align-items:center}.card.respondido{background:#0f1f14;border-color:#14532d;opacity:.6}.card.respondido .msg-text,.card.respondido .from-name{text-decoration:line-through;color:#888}.avatar{width:40px;height:40px;border-radius:50%;background:#222}.btn{background:#1877F2;color:#fff;border:none;padding:11px 18px;border-radius:10px;font-weight:700;cursor:pointer}.btn-green{background:#16a34a}.btn-orange{background:#ea580c}.btn-gray{background:#333}.btn-red{background:#dc2626}.input{width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:9px;color:#fff;margin:3px 0}.log{background:#111;border:1px solid #222;border-radius:10px;padding:10px;height:340px;overflow:auto;font-size:11px;color:#9ca3af}.toggle{margin-left:auto;width:42px;height:22px;background:#333;border-radius:20px;position:relative;cursor:pointer}.toggle.on{background:#1877F2}.toggle:after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.2s}.toggle.on:after{left:22px}.badge{background:#222;border-radius:20px;padding:3px 9px;font-size:11px;min-width:70px;text-align:center}.badge.red{background:#3f1a1a;color:#f87171}.badge.green{background:#132e1f;color:#4ade80}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:10px 0}.stat{background:#151515;border:1px solid #222;border-radius:12px;padding:12px;text-align:center}.stat b{font-size:22px;display:block}.indicator{display:flex;align-items:center;gap:5px;font-size:11px;background:#1e1e1e;border:1px solid #2a2a2a;padding:5px 9px;border-radius:20px}.check{width:20px;height:20px;border-radius:50%;background:#22c55e;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}</style></head><body>
-<h2>✅ FIX - Cantidades Reales Cuadradas</h2><div id="perfilTop" style="color:#4ade80"></div><div id="loginBox" style="background:#111;border:1px dashed #444;padding:14px;border-radius:12px"><input id="token" class="input" placeholder="Token EAA..."><button class="btn" onclick="cargarTodo()" style="width:100%">🔌 Cargar páginas</button><p id="status" style="color:#fbbf24"></p></div><div id="app" style="display:none"><div class="status-bar"><div class="indicator"><span id="dotConn" class="dot gray"></span><span id="txtConn">Desconectado</span></div><div class="indicator"><span id="dotWork" class="dot gray"></span><span id="txtWork">Pausado</span></div><div class="indicator">⏱️ <span id="txtTimer">45s</span></div><div class="indicator">🔄 <span id="txtAutoScan">Auto 20min ON</span></div><div class="progress"><div id="progScan" class="progress-bar"></div></div></div><div class="grid"><div class="stat"><b id="statPag">0</b>Páginas</div><div class="stat" style="border:2px solid #eab308"><b id="statPend">0</b>Pendientes REALES<br><small id="statPendDetail" style="color:#888;font-size:10px"></small></div><div class="stat"><b id="statResp">0</b>Respondidos</div><div class="stat"><b id="statScan">0</b>Posts</div></div><div id="lista"></div><div style="background:#111;border:1px solid #333;border-radius:12px;padding:12px;margin:10px 0"><div id="msgsPreview" style="max-height:80px;overflow:auto;background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:8px;font-size:11px"></div><label><input type="checkbox" id="likeCheck" checked> Like ❤️</label> <label><input type="checkbox" id="autoScanCheck" checked> Auto 20min</label></div><div style="background:#052e16;border:1px solid #166534;border-radius:12px;padding:12px"><div style="display:flex;gap:8px"><button class="btn btn-orange" onclick="scanAllPages(false)">⚡ Scan ahora</button><button class="btn btn-gray" onclick="limpiarHist()">Limpiar</button><select id="limitPosts" class="input" style="width:80px"><option value="100">100</option><option value="200" selected>200</option></select></div><div style="margin-top:10px"><button id="btnAuto" class="btn btn-green" style="width:100%;font-size:16px" onclick="toggleAuto()">▶️ Activar cada 45s</button><div class="progress" style="height:14px;margin-top:8px"><div id="progResp" class="progress-bar" style="background:#22c55e"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-top:4px"><span id="txtProgResp">0 / 0</span><span id="txtNext">Próximo en 45s</span></div></div></div><h3>📋 Cola - Tachado + Like (cuenta real)</h3><div id="pendLista" style="max-height:420px;overflow:auto;background:#0f0f0f;border:1px solid #222;border-radius:10px;padding:8px"></div><h3>Log</h3><div class="log" id="log"></div></div><script>
-let token='',paginas=[],conectadas={},pageTokens={},pendientes=[],respondidos=new Set(JSON.parse(localStorage.getItem('respondidos_final_fix')||'[]')),totalRespHoy=parseInt(localStorage.getItem('respHoy')||'0'),auto=false,timer=null,countdownTimer=null,autoScanTimer=null,ultimoMsg='',scanDone=0,scanStart=0;
+<h2>✅ Intercalado Viejo → Nuevo por Página</h2><div id="perfilTop" style="color:#4ade80"></div><div id="loginBox" style="background:#111;border:1px dashed #444;padding:14px;border-radius:12px"><input id="token" class="input" placeholder="Token EAA..."><button class="btn" onclick="cargarTodo()" style="width:100%">🔌 Cargar</button><p id="status" style="color:#fbbf24"></p></div><div id="app" style="display:none"><div class="status-bar"><div class="indicator"><span id="dotConn" class="dot gray"></span><span id="txtConn">Desconectado</span></div><div class="indicator"><span id="dotWork" class="dot gray"></span><span id="txtWork">Pausado</span></div><div class="indicator">⏱️ <span id="txtTimer">45s</span></div><div class="indicator">🔄 <span id="txtAutoScan">Auto 20min ON</span></div><div class="progress"><div id="progScan" class="progress-bar"></div></div></div><div class="grid"><div class="stat"><b id="statPag">0</b>Páginas</div><div class="stat" style="border:2px solid #eab308"><b id="statPend">0</b>Pendientes<br><small id="statPendDetail" style="color:#888;font-size:10px"></small></div><div class="stat"><b id="statResp">0</b>Resp</div><div class="stat"><b id="statScan">0</b>Posts</div></div><div id="lista"></div><div style="background:#111;border:1px solid #333;border-radius:12px;padding:12px;margin:10px 0"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><label style="font-size:11px">Posts/pág:<select id="limitPosts" class="input" style="width:150px"><option value="100">100 posts</option><option value="200" selected>200 posts</option><option value="300">300 posts</option><option value="500">500 posts</option><option value="all">Todos los posts (hasta 1000)</option></select></label><label style="font-size:11px"><input type="checkbox" id="intercaladoCheck" checked> 🔀 Intercalado viejo→nuevo por página</label></div><div id="msgsPreview" style="background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:8px;font-size:11px;margin-top:6px">Orden: más viejo primero → más nuevo al final, intercalado 08,02,01...</div><label><input type="checkbox" id="likeCheck" checked> Like ❤️</label> <label><input type="checkbox" id="autoScanCheck" checked> Auto 20min</label></div><div style="background:#052e16;border:1px solid #166534;border-radius:12px;padding:12px"><div style="display:flex;gap:8px"><button class="btn btn-orange" onclick="scanAllPages(false)">⚡ Scan ahora</button><button class="btn btn-gray" onclick="limpiarHist()">Limpiar</button></div><div style="margin-top:10px"><button id="btnAuto" class="btn btn-green" style="width:100%;font-size:16px" onclick="toggleAuto()">▶️ Activar cada 45s intercalado viejo→nuevo</button><div class="progress" style="height:14px;margin-top:8px"><div id="progResp" class="progress-bar" style="background:#22c55e"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-top:4px"><span id="txtProgResp">0 / 0</span><span id="txtNext">Próximo en 45s</span></div></div></div><h3>📋 Cola: Viejo → Nuevo + Intercalado</h3><div id="pendLista" style="max-height:420px;overflow:auto;background:#0f0f0f;border:1px solid #222;border-radius:10px;padding:8px"></div><h3>Log</h3><div class="log" id="log"></div></div><script>
+let token='',paginas=[],conectadas={},pageTokens={},pendientes=[],respondidos=new Set(JSON.parse(localStorage.getItem('respondidos_inter')||'[]')),totalRespHoy=parseInt(localStorage.getItem('respHoy')||'0'),auto=false,timer=null,countdownTimer=null,autoScanTimer=null,ultimoMsg='';
 const MENSAJES_20=["¡Muchas gracias, {name}! 🙏","¡Gracias por tu comentario, {name}! 😊","Me alegra que te haya gustado, {name}. ¡Abrazos! 🤗","¡Gracias por tu apoyo, {name}! ❤️","Hola {name}, gracias por pasarte por aquí. 🙌","¡Gracias, {name} por tus buenos deseos! ✨","¡Saludos, {name}! Gracias por comentar. 👋","Jajaja me hiciste el día, {name}. 😂","¡Gracias, {name}! Te mando un fuerte abrazo. 🤗","Gracias por siempre estar pendiente, {name}. 💯","¡Hola! Qué bueno leerte, {name}. 👀","¡Gracias por la buena vibra, {name}! 🔥","Aprecio mucho tu comentario, {name}. 🙏❤️","¡Gracias, {name}! Ya te respondí por privado. 📩","¡Qué alegría tu comentario, {name}! 😍","Bendiciones para ti también, {name}. 🙏","¡Gracias, {name}! Tomo en cuenta tu comentario. 👌","¡Hola, {name}! Gracias por interactuar. 😊👇","¡Gracias por tu aporte, {name}! 💬","¡Gracias, {name}! Nos vemos en el próximo post. 🚀"];
 function el(id){return document.getElementById(id);}function setConn(ok){let d=el('dotConn'),t=el('txtConn');if(d)d.className='dot '+(ok?'green':'red');if(t)t.innerText=ok?'Conectado':'Desconectado';}function setWork(w,txt){let d=el('dotWork'),t=el('txtWork');if(d)d.className='dot '+(w?'yellow':'gray');if(t)t.innerText=txt||(w?'Trabajando':'Pausado');}function log(h){let e=el('log');if(e)e.innerHTML=`<div style="margin:3px 0;border-left:3px solid #1877F2;padding-left:8px">${new Date().toLocaleTimeString()} - ${h}</div>`+e.innerHTML;}
-function limpiarHist(){if(confirm('Borrar historial?')){localStorage.removeItem('respondidos_final_fix');respondidos=new Set();log('Historial limpiado');}}
+function limpiarHist(){if(confirm('Borrar?')){localStorage.removeItem('respondidos_inter');respondidos=new Set();log('Limpiado');}}
 function getSmartMsg(n){let disp=MENSAJES_20.filter(m=>m!==ultimoMsg);let msg=disp[Math.floor(Math.random()*disp.length)]||MENSAJES_20[0];ultimoMsg=msg;return msg.replace('{name}',n||'amigo');}
-
-function actualizarContadores(){
- // FUENTE ÚNICA DE VERDAD: pendientes.length
- let porPag={};
- pendientes.forEach(c=>{porPag[c.pageId]=(porPag[c.pageId]||0)+1;});
- // Actualizar badges
- Object.keys(porPag).forEach(pid=>{let b=el(`badge-${pid}`);if(b){b.innerText=porPag[pid];b.className='badge '+(porPag[pid]>0?'red':'green');}});
- // Páginas sin pendientes en 0
- paginas.forEach(p=>{if(!porPag[p.id]){let b=el(`badge-${p.id}`);if(b){b.innerText='0';b.className='badge green';}}});
- let totalReal=pendientes.length;
- el('statPend').innerText=totalReal;
- let detail=Object.entries(porPag).map(([pid,c])=>{let pg=paginas.find(x=>x.id===pid);return `${pg?pg.name.substring(0,12):pid}: ${c}`;}).join(' + ')||'0';
- el('statPendDetail').innerText=detail + ` = ${totalReal}`;
- // Validación visual si cuadra
- if(totalReal===Object.values(porPag).reduce((a,b)=>a+b,0)){el('statPend').style.color='#4ade80';}else{el('statPend').style.color='#f87171';}
-}
-
-async function cargarTodo(){
- token=el('token').value.trim();if(!token.startsWith('EAA')){alert('Token EAA');return;}
- localStorage.setItem('fb_token',token);el('status').innerText='Conectando...';setConn(false);
- let allMap={};
- try{
-  let meR=await fetch(`https://graph.facebook.com/v21.0/me?fields=name&access_token=${token}`);let me=await meR.json();if(me.error)throw new Error(me.error.message);
-  el('perfilTop').innerHTML=`✅ ${me.name} - Fix cantidades`;
-  let r1=await fetch(`https://graph.facebook.com/v21.0/me/accounts?fields=name,id,picture.type(large),access_token&limit=100&access_token=${token}`);let j1=await r1.json();if(j1.data)j1.data.forEach(p=>{allMap[p.id]=p;});
-  let rb=await fetch(`https://graph.facebook.com/v21.0/me/businesses?fields=id&limit=20&access_token=${token}`);let jb=await rb.json();if(jb.data){for(let b of jb.data){try{let ro=await fetch(`https://graph.facebook.com/v21.0/${b.id}/owned_pages?fields=name,id,picture.type(large)&limit=100&access_token=${token}`);let jo=await ro.json();if(jo.data)jo.data.forEach(p=>{if(!allMap[p.id])allMap[p.id]=p;});let rc=await fetch(`https://graph.facebook.com/v21.0/${b.id}/client_pages?fields=name,id,picture.type(large)&limit=100&access_token=${token}`);let jc=await rc.json();if(jc.data)jc.data.forEach(p=>{if(!allMap[p.id])allMap[p.id]=p;});}catch(e){}}}
-  for(let p of Object.values(allMap)){if(!p.access_token){try{let rt=await fetch(`https://graph.facebook.com/v21.0/${p.id}?fields=access_token&access_token=${token}`);let jt=await rt.json();if(jt.access_token)p.access_token=jt.access_token;}catch(e){}}if(p.access_token)pageTokens[p.id]=p;}
-  paginas=Object.values(allMap);el('loginBox').style.display='none';el('app').style.display='block';el('statPag').innerText=paginas.length;el('statResp').innerText=totalRespHoy;paginas.forEach(p=>{conectadas[p.id]=true;});render();setConn(true);setWork(false,'Listo');log(paginas.length+' páginas');el('msgsPreview').innerHTML=MENSAJES_20.slice(0,5).join('<br>')+'... +15 más';
- }catch(e){el('status').innerText='Error: '+e.message;setConn(false);}
-}
+function actualizarContadores(){let porPag={};pendientes.forEach(c=>{porPag[c.pageId]=(porPag[c.pageId]||0)+1;});Object.keys(porPag).forEach(pid=>{let b=el(`badge-${pid}`);if(b){b.innerText=porPag[pid];b.className='badge '+(porPag[pid]>0?'red':'green');}});paginas.forEach(p=>{if(!porPag[p.id]){let b=el(`badge-${p.id}`);if(b){b.innerText='0';b.className='badge green';}}});let totalReal=pendientes.length;el('statPend').innerText=totalReal;let detail=Object.entries(porPag).map(([pid,c])=>{let pg=paginas.find(x=>x.id===pid);return `${pg?pg.name.substring(0,10):pid}: ${c}`;}).join(' + ')||'0';el('statPendDetail').innerText=detail+` = ${totalReal} | viejo→nuevo`;}
+async function cargarTodo(){token=el('token').value.trim();if(!token.startsWith('EAA')){alert('Token EAA');return;}localStorage.setItem('fb_token',token);el('status').innerText='Conectando...';setConn(false);let allMap={};try{let meR=await fetch(`https://graph.facebook.com/v21.0/me?fields=name&access_token=${token}`);let me=await meR.json();if(me.error)throw new Error(me.error.message);el('perfilTop').innerHTML=`✅ ${me.name} - Intercalado viejo→nuevo`;let r1=await fetch(`https://graph.facebook.com/v21.0/me/accounts?fields=name,id,picture.type(large),access_token&limit=100&access_token=${token}`);let j1=await r1.json();if(j1.data)j1.data.forEach(p=>{allMap[p.id]=p;});let rb=await fetch(`https://graph.facebook.com/v21.0/me/businesses?fields=id&limit=20&access_token=${token}`);let jb=await rb.json();if(jb.data){for(let b of jb.data){try{let ro=await fetch(`https://graph.facebook.com/v21.0/${b.id}/owned_pages?fields=name,id,picture.type(large)&limit=100&access_token=${token}`);let jo=await ro.json();if(jo.data)jo.data.forEach(p=>{if(!allMap[p.id])allMap[p.id]=p;});let rc=await fetch(`https://graph.facebook.com/v21.0/${b.id}/client_pages?fields=name,id,picture.type(large)&limit=100&access_token=${token}`);let jc=await rc.json();if(jc.data)jc.data.forEach(p=>{if(!allMap[p.id])allMap[p.id]=p;});}catch(e){}}}for(let p of Object.values(allMap)){if(!p.access_token){try{let rt=await fetch(`https://graph.facebook.com/v21.0/${p.id}?fields=access_token&access_token=${token}`);let jt=await rt.json();if(jt.access_token)p.access_token=jt.access_token;}catch(e){}}if(p.access_token)pageTokens[p.id]=p;}paginas=Object.values(allMap);el('loginBox').style.display='none';el('app').style.display='block';el('statPag').innerText=paginas.length;el('statResp').innerText=totalRespHoy;paginas.forEach(p=>{conectadas[p.id]=true;});render();setConn(true);setWork(false,'Listo');log(paginas.length+' páginas');}catch(e){el('status').innerText='Error: '+e.message;setConn(false);}}
 function render(){let e=el('lista');if(!e)return;e.innerHTML=paginas.map(p=>`<div class="card ${conectadas[p.id]?'on':''}"><img src="${p.picture?.data?.url||''}" class="avatar"><div style="flex:1"><b>${p.name}</b><br><small>${p.id}</small></div><span class="badge green" id="badge-${p.id}">0</span><div class="toggle ${conectadas[p.id]?'on':''}" onclick="conectadas['${p.id}']=!conectadas['${p.id}'];render()"></div></div>`).join('');}
-async function fetchAllPostsDeep(pageId,pToken,limit){let all=[];let url=`https://graph.facebook.com/v21.0/${pageId}/feed?fields=id&limit=50&access_token=${pToken}`;let count=0;while(url&&count<limit){let r=await fetch(url);let j=await r.json();if(j.error)break;if(!j.data)break;all=all.concat(j.data);count+=j.data.length;url=j.paging?.next;}return all.slice(0,limit);}
-async function scanOnePost(post,p,seenGlobal){
- try{
-  let comments=[];let urlC=`https://graph.facebook.com/v21.0/${post.id}/comments?fields=id,from{name,id},message,created_time,comments{from},is_hidden&filter=stream&limit=100&access_token=${p.access_token}`;
-  while(urlC){
-   let rc=await fetch(urlC);let jc=await rc.json();if(!jc.data)break;
-   for(let c of jc.data){
-    if(seenGlobal.has(c.id))continue; // DEDUP GLOBAL
-    seenGlobal.add(c.id);
-    if(respondidos.has(c.id))continue;
-    if(c.from&&c.from.id===p.id)continue;
-    if(c.is_hidden)continue;
-    if(c.comments&&c.comments.data&&c.comments.data.some(r=>r.from.id===p.id)){respondidos.add(c.id);continue;}
-    comments.push({pageId:p.id,pageName:p.name,postId:post.id,commentId:c.id,message:c.message,fromName:c.from?.name||'amigo',time:c.created_time,pToken:p.access_token});
-   }
-   urlC=jc.paging?.next;
-  }
-  return comments;
- }catch(e){return [];}
-}
+async function fetchAllPostsDeep(pageId,pToken,limitStr){let all=[];let url=`https://graph.facebook.com/v21.0/${pageId}/feed?fields=id&limit=50&access_token=${pToken}`;let count=0;let isAll=limitStr==='all';let limit=isAll?1000:parseInt(limitStr)||200;while(url&&count<limit){let r=await fetch(url);let j=await r.json();if(j.error)break;if(!j.data)break;all=all.concat(j.data);count+=j.data.length;if(!isAll&&count>=limit)break;url=j.paging?.next;if(isAll&&count>=1000)break;}return isAll?all:all.slice(0,limit);}
+async function scanOnePost(post,p,seenGlobal){try{let comments=[];let urlC=`https://graph.facebook.com/v21.0/${post.id}/comments?fields=id,from{name,id},message,created_time,comments{from},is_hidden&filter=stream&limit=100&access_token=${p.access_token}`;while(urlC){let rc=await fetch(urlC);let jc=await rc.json();if(!jc.data)break;for(let c of jc.data){if(seenGlobal.has(c.id))continue;seenGlobal.add(c.id);if(respondidos.has(c.id))continue;if(c.from&&c.from.id===p.id)continue;if(c.is_hidden)continue;if(c.comments&&c.comments.data&&c.comments.data.some(r=>r.from.id===p.id)){respondidos.add(c.id);continue;}comments.push({pageId:p.id,pageName:p.name,postId:post.id,commentId:c.id,message:c.message,fromName:c.from?.name||'amigo',time:c.created_time,pToken:p.access_token});}urlC=jc.paging?.next;}return comments;}catch(e){return [];} }
 async function scanAllPages(isAuto=false){
  let activas=Object.keys(conectadas).filter(id=>conectadas[id]);if(activas.length===0){if(!isAuto)alert('Activa 1');return;}
- let limit=parseInt(el('limitPosts').value)||200;
- if(!isAuto){pendientes=[];} // FIX: siempre resetear pendientes en manual para no duplicar
- let totalPosts=0;let scanTotal=activas.length*limit;scanDone=0;scanStart=Date.now();
- if(!isAuto){setWork(true,`Escaneando x5 sin duplicados...`);el('progScan').style.width='0%';el('pendLista').innerHTML='<div style="padding:20px;text-align:center">⚡ Escaneando sin duplicados...</div>';}
- else{log(`🔄 Auto-scan 20min...`);}
- let seenGlobal=new Set(); // FIX: Set global para toda la corrida, evita contar 2 veces mismo commentId que aparece en 2 posts (shared)
+ let limitStr=el('limitPosts').value||'200';
+ if(!isAuto){pendientes=[];}
+ let totalPosts=0;let scanTotal=activas.length*(limitStr==='all'?1000:parseInt(limitStr));let scanDone=0;
+ if(!isAuto){setWork(true,`Escaneando ${limitStr} viejo->nuevo...`);el('progScan').style.width='0%';el('pendLista').innerHTML='<div style="padding:20px;text-align:center">⚡ Escaneando viejo→nuevo intercalado...</div>';}else{log(`🔄 Auto-scan...`);}
+ let seenGlobal=new Set();
+ let tempPorPagina={};
  for(let pageId of activas){
   try{
    let p=pageTokens[pageId];if(!p)continue;
-   let posts=await fetchAllPostsDeep(pageId,p.access_token,limit);totalPosts+=posts.length;
-   let idx=0;
+   let posts=await fetchAllPostsDeep(pageId,p.access_token,limitStr);totalPosts+=posts.length;
+   let idx=0;let collected=[];
    while(idx<posts.length){
     let batch=posts.slice(idx,idx+5);
     let results=await Promise.all(batch.map(post=>scanOnePost(post,p,seenGlobal)));
-    for(let arr of results){
-     for(let c of arr){
-      // FIX: verificar que no exista ya en pendientes
-      if(!pendientes.some(x=>x.commentId===c.commentId)){
-       pendientes.push(c);
-      }
-     }
-     scanDone++;let prog=el('progScan');if(prog&&scanTotal>0)prog.style.width=Math.min(100,(scanDone/scanTotal*100))+'%';el('statScan').innerText=scanDone;
-    }
+    for(let arr of results){for(let c of arr){if(!pendientes.some(x=>x.commentId===c.commentId)&&!collected.some(x=>x.commentId===c.commentId)){collected.push(c);}} scanDone++;let prog=el('progScan');if(prog&&scanTotal>0)prog.style.width=Math.min(100,(scanDone/scanTotal*100))+'%';el('statScan').innerText=scanDone;}
     idx+=5;
    }
+   // ORDENAR VIEJO -> NUEVO POR PÁGINA
+   collected.sort((a,b)=> new Date(a.time) - new Date(b.time));
+   tempPorPagina[pageId]=collected;
   }catch(e){log(`Error ${pageId}`);}
  }
- // FIX: fuente única
+ // INTERCALADO VIEJO->NUEVO
+ let intercaladoCheck=el('intercaladoCheck');let intercalado=intercaladoCheck?intercaladoCheck.checked:true;
+ let finalCola=[];
+ if(intercalado){
+  let maxLen=Math.max(...Object.values(tempPorPagina).map(a=>a.length),0);
+  for(let i=0;i<maxLen;i++){
+   for(let pid of activas){
+    let arr=tempPorPagina[pid];
+    if(arr&&arr[i]){finalCola.push(arr[i]);}
+   }
+  }
+  log(`🔀 Intercalado viejo→nuevo: ${activas.length} págs - 1ro los más antiguos de cada página`);
+ }else{
+  for(let pid of activas){let arr=tempPorPagina[pid];if(arr)finalCola=finalCola.concat(arr);}
+  finalCola.sort((a,b)=> new Date(a.time) - new Date(b.time));
+ }
+ if(isAuto){for(let c of finalCola){if(!pendientes.some(x=>x.commentId===c.commentId)){pendientes.push(c);}}}else{pendientes=finalCola;}
  actualizarContadores();
  let totalReal=pendientes.length;
- el('pendLista').innerHTML=pendientes.slice(0,300).map(p=>`<div class="card" id="card-${p.commentId}" style="border-left:4px solid #f59e0b"><div style="flex:1"><b class="from-name">${p.pageName} - ${p.fromName}</b>: <span class="msg-text">"${(p.message||'').substring(0,100)}"</span><br><small>${new Date(p.time).toLocaleString()}</small> <span id="like-${p.commentId}"></span></div><div id="check-${p.commentId}" style="display:none" class="check">✓</div></div>`).join('')||'<div style="padding:20px;text-align:center;color:#4ade80">✅ Sin pendientes</div>';
- el('progScan').style.width='100%';setWork(false,`✅ Listo: ${totalReal} REALES (cuadra con badges)`);log(`✅ FIX: ${totalReal} pendientes REALES - Suma badges = ${totalReal} - Sin duplicados`);el('progResp').style.width='0%';el('txtProgResp').innerText=`0 / ${totalReal}`;
+ el('pendLista').innerHTML=pendientes.slice(0,400).map((p,idx)=>`<div class="card" id="card-${p.commentId}" style="border-left:4px solid ${idx<activas.length?'#22c55e':'#f59e0b'}"><div style="flex:1"><small style="color:#22c55e">#${idx+1} | ${p.pageName} | ${new Date(p.time).toLocaleDateString()} ${new Date(p.time).toLocaleTimeString()}</small><br><b class="from-name">${p.fromName}</b>: <span class="msg-text">"${(p.message||'').substring(0,90)}"</span> <span id="like-${p.commentId}"></span></div><div id="check-${p.commentId}" style="display:none" class="check">✓</div></div>`).join('')||'<div style="padding:20px;text-align:center;color:#4ade80">✅ Sin pendientes</div>';
+ el('progScan').style.width='100%';setWork(false,`✅ ${totalReal} intercalados viejo→nuevo`);log(`✅ ${totalReal} pendientes - Viejo→Nuevo - Intercalado`);el('progResp').style.width='0%';el('txtProgResp').innerText=`0 / ${totalReal}`;
 }
-
-function toggleAuto(){
- if(pendientes.length===0){alert('Scan primero');return;}
- let btn=el('btnAuto');
- if(auto){auto=false;clearTimeout(timer);clearInterval(countdownTimer);clearInterval(autoScanTimer);if(btn){btn.innerText='▶️ Activar cada 45s';btn.className='btn btn-green';}setWork(false,'Pausado');return;}
- auto=true;if(btn){btn.innerText='⏸️ Pausar - Cada 45s';btn.className='btn btn-red';}setWork(true,'Activo 45s...');autoScanTimer=setInterval(()=>{let chk=el('autoScanCheck');if(chk&&chk.checked){scanAllPages(true);}},20*60*1000);responderNext();
-}
-async function responderNext(){
- if(!auto||pendientes.length===0){auto=false;let btn=el('btnAuto');if(btn){btn.innerText='▶️ Activar cada 45s';btn.className='btn btn-green';}setWork(false,pendientes.length===0?'✅ Cola vacía':'Pausado');return;}
- let it=pendientes.shift();
- actualizarContadores();
- let pr=el('progResp');if(pr)pr.style.width='50%';
- let card=el(`card-${it.commentId}`);let check=el(`check-${it.commentId}`);let likeSpan=el(`like-${it.commentId}`);
- try{
-  let msg=getSmartMsg(it.fromName);
-  let likeCheck=el('likeCheck');let likeOk=false;
-  if(likeCheck&&likeCheck.checked){try{let lr=await fetch(`https://graph.facebook.com/v21.0/${it.commentId}/likes?method=POST&access_token=${it.pToken}`,{method:'POST'});let lj=await lr.json();if(lj.success||!lj.error){likeOk=true; if(likeSpan)likeSpan.innerText='❤️ Like';}}catch(e){}}
-  log(`💬 ${it.pageName} → ${it.fromName}: ${msg}`);
-  let rp=await fetch(`https://graph.facebook.com/v21.0/${it.commentId}/comments?method=POST&message=${encodeURIComponent(msg)}&access_token=${it.pToken}`,{method:'POST'});
-  let jr=await rp.json();
-  if(jr.id){
-   respondidos.add(it.commentId);localStorage.setItem('respondidos_final_fix',JSON.stringify([...respondidos]));totalRespHoy++;localStorage.setItem('respHoy',totalRespHoy);el('statResp').innerText=totalRespHoy;
-   if(card)card.classList.add('respondido');if(check)check.style.display='flex';if(likeSpan)likeSpan.innerText=likeOk?'❤️ + ✅':'✅';
-  }else{log(`❌ ${jr.error?.message}`);if(jr.error?.code!==368){pendientes.unshift(it);} }
- }catch(e){log(e.message);}
- actualizarContadores();
- let sec=45,left=sec;let tn=el('txtNext'),tt=el('txtTimer');if(tn)tn.innerText=`Próximo en ${left}s - Quedan ${pendientes.length}`;if(tt)tt.innerText=`Próximo en ${left}s`;clearInterval(countdownTimer);countdownTimer=setInterval(()=>{left--;if(left>=0){if(tn)tn.innerText=`Próximo en ${left}s - Quedan ${pendientes.length}`;if(tt)tt.innerText=`Próximo en ${left}s`;}else clearInterval(countdownTimer);},1000);timer=setTimeout(responderNext,45000);
-}
+function toggleAuto(){if(pendientes.length===0){alert('Scan primero');return;}let btn=el('btnAuto');if(auto){auto=false;clearTimeout(timer);clearInterval(countdownTimer);clearInterval(autoScanTimer);if(btn){btn.innerText='▶️ Activar cada 45s intercalado viejo→nuevo';btn.className='btn btn-green';}setWork(false,'Pausado');return;}auto=true;if(btn){btn.innerText='⏸️ Pausar - Intercalado viejo→nuevo';btn.className='btn btn-red';}setWork(true,'Activo 45s viejo→nuevo...');autoScanTimer=setInterval(()=>{let chk=el('autoScanCheck');if(chk&&chk.checked){scanAllPages(true);}},20*60*1000);responderNext();}
+async function responderNext(){if(!auto||pendientes.length===0){auto=false;let btn=el('btnAuto');if(btn){btn.innerText='▶️ Activar cada 45s intercalado viejo→nuevo';btn.className='btn btn-green';}setWork(false,pendientes.length===0?'✅ Cola vacía':'Pausado');return;}let it=pendientes.shift();actualizarContadores();let card=el(`card-${it.commentId}`);let check=el(`check-${it.commentId}`);let likeSpan=el(`like-${it.commentId}`);try{let msg=getSmartMsg(it.fromName);let likeCheck=el('likeCheck');let likeOk=false;if(likeCheck&&likeCheck.checked){try{let lr=await fetch(`https://graph.facebook.com/v21.0/${it.commentId}/likes?method=POST&access_token=${it.pToken}`,{method:'POST'});let lj=await lr.json();if(lj.success||!lj.error){likeOk=true; if(likeSpan)likeSpan.innerText='❤️ Like';}}catch(e){}}log(`💬 [${it.pageName}] → ${it.fromName}: ${msg}`);let rp=await fetch(`https://graph.facebook.com/v21.0/${it.commentId}/comments?method=POST&message=${encodeURIComponent(msg)}&access_token=${it.pToken}`,{method:'POST'});let jr=await rp.json();if(jr.id){respondidos.add(it.commentId);localStorage.setItem('respondidos_inter',JSON.stringify([...respondidos]));totalRespHoy++;localStorage.setItem('respHoy',totalRespHoy);el('statResp').innerText=totalRespHoy;if(card)card.classList.add('respondido');if(check)check.style.display='flex';if(likeSpan)likeSpan.innerText=likeOk?'❤️ + ✅':'✅';}else{log(`❌ ${jr.error?.message}`);if(jr.error?.code!==368){pendientes.push(it);} }}catch(e){log(e.message);}actualizarContadores();let sec=45,left=sec;let tn=el('txtNext'),tt=el('txtTimer');if(tn)tn.innerText=`Próximo en ${left}s - Quedan ${pendientes.length}`;if(tt)tt.innerText=`Próximo en ${left}s`;clearInterval(countdownTimer);countdownTimer=setInterval(()=>{left--;if(left>=0){if(tn)tn.innerText=`Próximo en ${left}s - Quedan ${pendientes.length}`;if(tt)tt.innerText=`Próximo en ${left}s`;}else clearInterval(countdownTimer);},1000);timer=setTimeout(responderNext,45000);}
 let saved=localStorage.getItem('fb_token');if(saved){let e=el('token');if(e)e.value=saved;}
 </script></body></html>
