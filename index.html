@@ -1,53 +1,77 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ICE CREAM FINAL</title>
-<style>body{background:#0a0a0a;color:#fff;font-family:system-ui;padding:14px;max-width:1200px;margin:auto}.header-bar{background:#000;border:1px solid #222;border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:14px}.header-bar img{height:54px;border-radius:8px}.login-box{background:#111;border:1px solid #333;border-radius:16px;padding:20px;max-width:420px;margin:40px auto}.status-bar{background:#151515;border:1px solid #262626;border-radius:14px;padding:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0;position:sticky;top:8px;z-index:99}.dot{width:11px;height:11px;border-radius:50%}.dot.green{background:#22c55e;animation:pulse 1.5s infinite}.dot.yellow{background:#eab308;animation:pulse 1.5s infinite}.dot.gray{background:#555}@keyframes pulse{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}.progress{height:9px;background:#222;border-radius:10px;overflow:hidden;flex:1}.progress-bar{height:100%;background:#ffd700;width:0%}.card{background:#171717;border:1px solid #262626;border-radius:12px;padding:11px;margin:5px 0;display:flex;gap:10px;align-items:center}.card.respondido{background:#0f1f14;border-color:#14532d;opacity:.6}.avatar{width:40px;height:40px;border-radius:50%;background:#222}.btn{background:#ffd700;color:#000;border:none;padding:11px 18px;border-radius:10px;font-weight:800;cursor:pointer}.btn-green{background:#16a34a;color:#fff}.btn-orange{background:#ea580c;color:#fff}.btn-gray{background:#333;color:#fff}.btn-red{background:#dc2626;color:#fff}.input{width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:10px;color:#fff;margin:5px 0}.log{background:#111;border:1px solid #222;border-radius:10px;padding:10px;height:340px;overflow:auto;font-size:11px;color:#9ca3af}.toggle{margin-left:auto;width:42px;height:22px;background:#333;border-radius:20px;position:relative;cursor:pointer}.toggle.on{background:#ffd700}.toggle:after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.2s}.toggle.on:after{left:22px}.badge{background:#222;border-radius:20px;padding:3px 9px;font-size:11px;min-width:70px;text-align:center}.badge.red{background:#3f1a1a;color:#f87171}.badge.green{background:#132e1f;color:#4ade80}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:10px 0}.stat{background:#151515;border:1px solid #222;border-radius:12px;padding:12px;text-align:center}.stat b{font-size:22px;display:block}.indicator{display:flex;align-items:center;gap:5px;font-size:11px;background:#1e1e1e;border:1px solid #2a2a2a;padding:5px 9px;border-radius:20px}</style></head><body>
-<div class="header-bar"><img src="logo.png"><div><div style="font-weight:900"><span style="color:#ffd700">ICE CREAM</span> DIGITAL <small style="background:#ffd700;color:#000;padding:2px 6px;border-radius:6px;font-size:10px">TURBO</small></div><div style="font-size:11px;color:#aaa">ComentarioBots by Ives Hernandez - Anti-Spam 90s - Viejos Primero</div></div></div>
-<div id="loginUserBox" class="login-box"><h2 style="text-align:center;color:#ffd700">Login</h2><input id="user" class="input" value="Icecreamdigital"><input id="pass" type="password" class="input" placeholder="Contrasena"><button class="btn" style="width:100%" onclick="doLogin()">Entrar</button><p id="loginMsg" style="color:#f87171;text-align:center"></p></div>
-<div id="loginBox" style="display:none;background:#111;border:1px dashed #444;padding:14px;border-radius:12px"><input id="token" class="input" placeholder="EAA..."><button class="btn" onclick="cargarTodo()" style="width:100%">Cargar paginas</button><p id="status" style="color:#fbbf24"></p></div>
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ICE CREAM FIX LOGIN</title>
+<style>body{background:#0a0a0a;color:#fff;font-family:system-ui;padding:14px;max-width:1200px;margin:auto}.header-bar{background:#000;border:1px solid #222;border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:14px}.header-bar img{height:54px;border-radius:8px}.login-box{background:#111;border:1px solid #333;border-radius:16px;padding:20px;max-width:420px;margin:40px auto}.login-box h2{text-align:center;color:#ffd700}.input{width:100%;background:#111;border:1px solid #333;border-radius:10px;padding:12px;color:#fff;margin:8px 0;font-size:16px}.btn{background:#ffd700;color:#000;border:none;padding:12px 18px;border-radius:10px;font-weight:800;cursor:pointer;width:100%}.btn-green{background:#16a34a;color:#fff}.btn-orange{background:#ea580c;color:#fff}.btn-gray{background:#333;color:#fff}.status-bar{background:#151515;border:1px solid #262626;border-radius:14px;padding:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0;position:sticky;top:8px;z-index:99}.dot{width:11px;height:11px;border-radius:50%}.dot.green{background:#22c55e}.dot.yellow{background:#eab308}.dot.gray{background:#555}.progress{height:9px;background:#222;border-radius:10px;overflow:hidden;flex:1}.progress-bar{height:100%;background:#ffd700;width:0%}.card{background:#171717;border:1px solid #262626;border-radius:12px;padding:11px;margin:5px 0;display:flex;gap:10px;align-items:center}.card.respondido{background:#0f1f14;opacity:.6}.avatar{width:40px;height:40px;border-radius:50%;background:#222}.badge{background:#222;border-radius:20px;padding:3px 9px;font-size:11px;min-width:70px;text-align:center}.badge.red{background:#3f1a1a;color:#f87171}.badge.green{background:#132e1f;color:#4ade80}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:10px 0}.stat{background:#151515;border:1px solid #222;border-radius:12px;padding:12px;text-align:center}.stat b{font-size:22px;display:block}.indicator{display:flex;align-items:center;gap:5px;font-size:11px;background:#1e1e1e;border:1px solid #2a2a2a;padding:5px 9px;border-radius:20px}.log{background:#111;border:1px solid #222;border-radius:10px;padding:10px;height:300px;overflow:auto;font-size:11px;color:#9ca3af}.toggle{margin-left:auto;width:42px;height:22px;background:#333;border-radius:20px;position:relative;cursor:pointer}.toggle.on{background:#ffd700}.toggle:after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.2s}.toggle.on:after{left:22px}</style></head><body>
+<div class="header-bar"><img src="logo.png"><div><div style="font-weight:900"><span style="color:#ffd700">ICE CREAM</span> DIGITAL <small style="background:#ffd700;color:#000;padding:2px 6px;border-radius:6px;font-size:10px">TURBO</small></div><div style="font-size:11px;color:#aaa">ComentarioBots by Ives Hernandez</div></div></div>
+
+<div id="loginUserBox" class="login-box">
+<h2>🔐 Login ICE CREAM</h2>
+<p style="color:#aaa;font-size:12px;text-align:center">Usuario y contraseña del programa</p>
+<label style="font-size:12px">Usuario:</label>
+<input id="user" class="input" placeholder="Icecreamdigital" autocomplete="username">
+<label style="font-size:12px">Contraseña:</label>
+<input id="pass" type="password" class="input" placeholder="Ives2020." autocomplete="current-password">
+<button class="btn" onclick="doLogin()" style="margin-top:12px">▶️ Entrar</button>
+<p id="loginMsg" style="color:#f87171;text-align:center;margin-top:10px;font-weight:700"></p>
+<div style="background:#1a1a00;border:1px solid #665500;border-radius:8px;padding:8px;margin-top:12px;font-size:11px;color:#ffec99">
+<b>Credenciales:</b><br>
+Usuario: <b>Icecreamdigital</b><br>
+Contraseña: <b>Ives2020.</b> (con punto al final)
+</div>
+</div>
+
+<div id="loginBox" style="display:none;background:#111;border:1px dashed #444;padding:14px;border-radius:12px"><h3 style="color:#ffd700">🔑 Token Facebook</h3><input id="token" class="input" placeholder="EAA..."><button class="btn" onclick="cargarTodo()" style="width:100%;margin-top:8px">🔌 Cargar páginas</button><p id="status" style="color:#fbbf24"></p><button class="btn" style="background:#333;color:#fff;margin-top:8px" onclick="logout()">Cerrar sesión programa</button></div>
+
 <div id="app" style="display:none"><div class="status-bar"><div class="indicator"><span id="dotConn" class="dot gray"></span><span id="txtConn">Desconectado</span></div><div class="indicator"><span id="dotWork" class="dot gray"></span><span id="txtWork">Pausado</span></div><div class="indicator">T <span id="txtTimer">90s</span></div><div class="indicator">S <span id="txtAntiSpam">Anti-Spam ON</span></div><div class="progress"><div id="progScan" class="progress-bar"></div></div></div>
-<div class="grid"><div class="stat"><b id="statPag">0</b>Pag</div><div class="stat" style="border:2px solid #ffd700"><b id="statPend">0</b>Pend<br><small id="statPendDetail" style="font-size:10px;color:#888"></small></div><div class="stat"><b id="statResp">0</b>Resp</div><div class="stat"><b id="statScan">0</b>Posts</div></div>
+<div class="grid"><div class="stat"><b id="statPag">0</b>Pag</div><div class="stat" style="border:2px solid #ffd700"><b id="statPend">0</b>Pend</div><div class="stat"><b id="statResp">0</b>Resp</div><div class="stat"><b id="statScan">0</b>Posts</div></div>
 <div id="lista"></div>
 <div style="background:#111;border:1px solid #333;border-radius:12px;padding:12px;margin:10px 0">
-<h4 style="margin:0 0 8px;color:#ffd700">Final - Escanea TODO, Responde Viejos Primero, Anti-Spam</h4>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">
-<label>Posts:<select id="limitPosts" class="input"><option value="100">100</option><option value="200">200</option><option value="500">500</option><option value="all" selected>Todos (1000) + recientes</option></select></label>
-<label>Delay:<select id="delaySelect" class="input"><option value="60">60s rapido</option><option value="90" selected>90s seguro RECOMENDADO</option><option value="120">120s ultra seguro</option><option value="random">Random 75-120s humano</option></select></label>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><label>Posts:<select id="limitPosts" class="input" style="width:150px"><option value="all" selected>Todos 1000+recientes</option><option value="500">500</option><option value="200">200</option><option value="100">100</option></select></label><label>Delay:<select id="delaySelect" class="input" style="width:150px"><option value="60">60s</option><option value="90" selected>90s seguro</option><option value="120">120s ultra</option><option value="random">Random 75-120s</option></select></label></div>
+<div style="margin-top:8px;display:flex;gap:12px;flex-wrap:wrap"><label><input type="checkbox" id="intercaladoCheck" checked> Intercalado</label><label><input type="checkbox" id="deepCheck" checked> Deep hilos</label><label><input type="checkbox" id="oldFirstCheck" checked> Viejos primero</label><label><input type="checkbox" id="likeCheck" checked> Like OK</label><label><input type="checkbox" id="autoScanCheck" checked> Auto 20min</label></div>
 </div>
-<div style="margin-top:8px;display:flex;gap:12px;flex-wrap:wrap">
-<label><input type="checkbox" id="intercaladoCheck" checked> Intercalado por pagina</label>
-<label><input type="checkbox" id="deepCheck" checked> Deep hilos</label>
-<label><input type="checkbox" id="oldFirstCheck" checked> Viejos primero</label>
-<label><input type="checkbox" id="likeCheck" checked> Like solo si OK</label>
-<label><input type="checkbox" id="autoScanCheck" checked> Auto 20min</label>
-</div>
-<div style="background:#0a1a00;border:1px solid #1a4d00;border-radius:8px;padding:8px;margin-top:8px;font-size:11px;color:#8f8">Anti-spam: 90s + 30 mensajes variados + 3s delay like + pausa 15min si error 368 + escanea TODO (viejos y recientes) pero contesta del mas viejo al mas nuevo intercalado</div>
-</div>
-<div style="background:#052e16;border:1px solid #166534;border-radius:12px;padding:12px">
-<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-orange" onclick="scanAllPages(false)">Scan TODO viejos+recientes</button><button class="btn btn-gray" onclick="logout()">Salir</button></div>
-<div style="margin-top:10px"><button id="btnAuto" class="btn btn-green" style="width:100%;font-size:16px" onclick="toggleAuto()">Activar 90s anti-spam viejos primero</button><div class="progress" style="height:14px;margin-top:8px"><div id="progResp" class="progress-bar" style="background:#22c55e"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:#aaa"><span id="txtProgResp">0 / 0</span><span id="txtNext">Proximo 90s</span></div></div>
-</div>
-<h3>Cola: TODO escaneado, responde viejos primero</h3><div id="pendLista" style="max-height:500px;overflow:auto;background:#0f0f0f;border:1px solid #222;border-radius:10px;padding:8px"></div>
-<h3>Log</h3><div class="log" id="log"></div>
-</div>
+<div style="background:#052e16;border:1px solid #166534;border-radius:12px;padding:12px"><button class="btn btn-orange" onclick="scanAllPages(false)" style="background:#ea580c;color:#fff;width:100%">⚡ Scan TODO viejos+recientes</button><div style="margin-top:10px"><button id="btnAuto" class="btn btn-green" style="width:100%;font-size:16px;background:#16a34a;color:#fff" onclick="toggleAuto()">▶️ Activar 90s anti-spam viejos primero</button><div class="progress" style="height:14px;margin-top:8px"><div id="progResp" class="progress-bar" style="background:#22c55e"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:#aaa"><span id="txtProgResp">0 / 0</span><span id="txtNext">Proximo 90s</span></div></div></div>
+<h3>Cola</h3><div id="pendLista" style="max-height:500px;overflow:auto;background:#0f0f0f;border:1px solid #222;border-radius:10px;padding:8px"></div><h3>Log</h3><div class="log" id="log"></div></div>
+
 <script>
 let token='',paginas=[],conectadas={},pageTokens={},pendientes=[],respondidos=new Set(JSON.parse(localStorage.getItem('respondidos_inter')||'[]')),totalRespHoy=parseInt(localStorage.getItem('respHoy')||'0'),auto=false,timer=null,countdownTimer=null,autoScanTimer=null,ultimoMsg='',spamPauseUntil=0;
-const USER_OK="Icecreamdigital"; const PASS_OK="Ives2020.";
-const MENSAJES=["Muchas gracias, {name}! 🙏","Gracias por tu comentario, {name}! 😊","Me alegra que te haya gustado, {name}. Abrazos! 🤗","Gracias por tu apoyo, {name}! ❤️","Hola {name}, gracias por pasarte por aqui. 🙌","Gracias, {name} por tus buenos deseos! ✨","Saludos, {name}! Gracias por comentar. 👋","Jajaja me hiciste el dia, {name}. 😂","Gracias, {name}! Te mando un fuerte abrazo. 🤗","Gracias por siempre estar pendiente, {name}. 💯","Hola! Que bueno leerte, {name}. 👀","Gracias por la buena vibra, {name}! 🔥","Aprecio mucho tu comentario, {name}. 🙏❤️","Gracias, {name}! Ya te respondi por privado. 📩","Que alegria tu comentario, {name}! 😍","Bendiciones para ti tambien, {name}. 🙏","Gracias, {name}! Tomo en cuenta tu comentario. 👌","Hola, {name}! Gracias por interactuar. 😊👇","Gracias por tu aporte, {name}! 💬","Gracias, {name}! Nos vemos en el proximo post. 🚀","Hola {name}! Gracias por tu mensaje, lo aprecio mucho. 🙏","Que tengas un excelente dia, {name}. Gracias! ☀️","Gracias por compartir tu opinion, {name}! 👏","Un abrazo grande, {name}! Gracias por estar aqui. 🤗","Gracias {name}! Me motivas a seguir. 💪","Hola {name}! Que gusto leerte por aqui. 😊","Muchas bendiciones {name}! Gracias por comentar. ✨","Gracias por tu tiempo {name}! 🙌","Saludos cordiales {name}! Gracias. 👋","Gracias infinitas {name}! ❤️🙏"];
+const USER_OK="Icecreamdigital";
+const PASS_OK="Ives2020.";
+const MENSAJES=["Muchas gracias, {name}! 🙏","Gracias por tu comentario, {name}! 😊","Me alegra que te haya gustado, {name}. Abrazos! 🤗","Gracias por tu apoyo, {name}! ❤️","Hola {name}, gracias por pasarte por aqui. 🙌","Gracias, {name} por tus buenos deseos! ✨","Saludos, {name}! Gracias por comentar. 👋","Jajaja me hiciste el dia, {name}. 😂","Gracias, {name}! Te mando un fuerte abrazo. 🤗","Gracias por siempre estar pendiente, {name}. 💯","Hola! Que bueno leerte, {name}. 👀","Gracias por la buena vibra, {name}! 🔥","Aprecio mucho tu comentario, {name}. 🙏❤️","Gracias, {name}! Ya te respondi por privado. 📩","Que alegria tu comentario, {name}! 😍","Bendiciones para ti tambien, {name}. 🙏","Gracias, {name}! Tomo en cuenta tu comentario. 👌","Hola, {name}! Gracias por interactuar. 😊👇","Gracias por tu aporte, {name}! 💬","Gracias, {name}! Nos vemos en el proximo post. 🚀"];
 function el(id){return document.getElementById(id);}
-function doLogin(){let u=el('user').value.trim();let p=el('pass').value;if(u===USER_OK&&p===PASS_OK){localStorage.setItem('ice_login','ok');el('loginUserBox').style.display='none';el('loginBox').style.display='block';}else{el('loginMsg').innerText='Incorrecto';}}
-function logout(){if(confirm('Salir?')){localStorage.removeItem('ice_login');location.reload();}}
-function setConn(ok){let d=el('dotConn'),t=el('txtConn');if(d)d.className='dot '+(ok?'green':'red');if(t)t.innerText=ok?'Conectado':'Desconectado';}function setWork(w,txt){let d=el('dotWork'),t=el('txtWork');if(d)d.className='dot '+(w?'yellow':'gray');if(t)t.innerText=txt||(w?'Trabajando':'Pausado');}function log(h){let e=el('log');if(e)e.innerHTML=`<div style="margin:3px 0;border-left:3px solid #ffd700;padding-left:8px">${new Date().toLocaleTimeString()} - ${h}</div>`+e.innerHTML;}
+function doLogin(){
+ console.log("Login intento");
+ let uEl=el('user'); let pEl=el('pass');
+ let u=uEl?uEl.value.trim():""; let p=pEl?pEl.value:"";
+ console.log("Usuario:",u,"Pass len:",p.length);
+ let msgEl=el('loginMsg');
+ if(!u||!p){ if(msgEl) msgEl.innerText="⚠️ Escribe usuario y contraseña"; return; }
+ if(u===USER_OK && p===PASS_OK){
+  console.log("Login OK");
+  localStorage.setItem('ice_login','ok');
+  if(msgEl) msgEl.innerText="✅ Correcto, entrando...";
+  setTimeout(()=>{ 
+   el('loginUserBox').style.display='none'; 
+   el('loginBox').style.display='block'; 
+  },300);
+ }else{
+  console.log("Login fallo");
+  if(msgEl) msgEl.innerText=`❌ Incorrecto. Escribiste: "${u}" / "${p}" - Debe ser Icecreamdigital / Ives2020.`;
+ }
+}
+function logout(){ localStorage.removeItem('ice_login'); location.reload(); }
+function setConn(ok){let d=el('dotConn'),t=el('txtConn');if(d)d.className='dot '+(ok?'green':'red');if(t)t.innerText=ok?'Conectado':'Desconectado';}
+function setWork(w,txt){let d=el('dotWork'),t=el('txtWork');if(d)d.className='dot '+(w?'yellow':'gray');if(t)t.innerText=txt||(w?'Trabajando':'Pausado');}
+function log(h){let e=el('log');if(e)e.innerHTML=`<div style="margin:3px 0;border-left:3px solid #ffd700;padding-left:8px">${new Date().toLocaleTimeString()} - ${h}</div>`+e.innerHTML;}
 function getDelay(){let v=el('delaySelect')?.value||'90';if(v==='random')return 75+Math.floor(Math.random()*45);return parseInt(v)||90;}
 function getSmartMsg(n){let disp=MENSAJES.filter(m=>m!==ultimoMsg);let msg=disp[Math.floor(Math.random()*disp.length)]||MENSAJES[0];ultimoMsg=msg;return msg.replace('{name}',n||'amigo');}
-function actualizarContadores(){let porPag={};pendientes.forEach(c=>{porPag[c.pageId]=(porPag[c.pageId]||0)+1;});Object.keys(porPag).forEach(pid=>{let b=el(`badge-${pid}`);if(b){b.innerText=porPag[pid];b.className='badge '+(porPag[pid]>0?'red':'green');}});paginas.forEach(p=>{if(!porPag[p.id]){let b=el(`badge-${p.id}`);if(b){b.innerText='0';b.className='badge green';}}});el('statPend').innerText=pendientes.length;}
-async function cargarTodo(){token=el('token').value.trim();if(!token.startsWith('EAA')){alert('EAA...');return;}localStorage.setItem('fb_token',token);el('status').innerText='Conectando...';let allMap={};try{let meR=await fetch(`https://graph.facebook.com/v21.0/me?fields=name&access_token=${token}`);let me=await meR.json();if(me.error)throw new Error(me.error.message);let r1=await fetch(`https://graph.facebook.com/v21.0/me/accounts?fields=name,id,picture.type(large),access_token&limit=100&access_token=${token}`);let j1=await r1.json();if(j1.data)j1.data.forEach(p=>{allMap[p.id]=p;});let rb=await fetch(`https://graph.facebook.com/v21.0/me/businesses?fields=id&limit=20&access_token=${token}`);let jb=await rb.json();if(jb.data){for(let b of jb.data){try{let ro=await fetch(`https://graph.facebook.com/v21.0/${b.id}/owned_pages?fields=name,id,picture.type(large)&limit=100&access_token=${token}`);let jo=await ro.json();if(jo.data)jo.data.forEach(p=>{if(!allMap[p.id])allMap[p.id]=p;});}catch(e){}}}}for(let p of Object.values(allMap)){if(!p.access_token){try{let rt=await fetch(`https://graph.facebook.com/v21.0/${p.id}?fields=access_token&access_token=${token}`);let jt=await rt.json();if(jt.access_token)p.access_token=jt.access_token;}catch(e){}}if(p.access_token)pageTokens[p.id]=p;}paginas=Object.values(allMap);el('loginBox').style.display='none';el('app').style.display='block';el('statPag').innerText=paginas.length;el('statResp').innerText=totalRespHoy;paginas.forEach(p=>{conectadas[p.id]=true;});render();setConn(true);setWork(false,'Listo Anti-Spam');log(paginas.length+' paginas');}catch(e){el('status').innerText='Error: '+e.message;}}
+function actualizarContadores(){let porPag={};pendientes.forEach(c=>{porPag[c.pageId]=(porPag[c.pageId]||0)+1;});Object.keys(porPag).forEach(pid=>{let b=el(`badge-${pid}`);if(b){b.innerText=porPag[pid];b.className='badge '+(porPag[pid]>0?'red':'green');}});el('statPend').innerText=pendientes.length;}
+async function cargarTodo(){token=el('token').value.trim();if(!token.startsWith('EAA')){alert('Token EAA...');return;}localStorage.setItem('fb_token',token);el('status').innerText='Conectando...';let allMap={};try{let meR=await fetch(`https://graph.facebook.com/v21.0/me?fields=name&access_token=${token}`);let me=await meR.json();if(me.error)throw new Error(me.error.message);let r1=await fetch(`https://graph.facebook.com/v21.0/me/accounts?fields=name,id,picture.type(large),access_token&limit=100&access_token=${token}`);let j1=await r1.json();if(j1.data)j1.data.forEach(p=>{allMap[p.id]=p;});let rb=await fetch(`https://graph.facebook.com/v21.0/me/businesses?fields=id&limit=20&access_token=${token}`);let jb=await rb.json();if(jb.data){for(let b of jb.data){try{let ro=await fetch(`https://graph.facebook.com/v21.0/${b.id}/owned_pages?fields=name,id,picture.type(large)&limit=100&access_token=${token}`);let jo=await ro.json();if(jo.data)jo.data.forEach(p=>{if(!allMap[p.id])allMap[p.id]=p;});}catch(e){}}}}for(let p of Object.values(allMap)){if(!p.access_token){try{let rt=await fetch(`https://graph.facebook.com/v21.0/${p.id}?fields=access_token&access_token=${token}`);let jt=await rt.json();if(jt.access_token)p.access_token=jt.access_token;}catch(e){}}if(p.access_token)pageTokens[p.id]=p;}paginas=Object.values(allMap);el('loginBox').style.display='none';el('app').style.display='block';el('statPag').innerText=paginas.length;el('statResp').innerText=totalRespHoy;paginas.forEach(p=>{conectadas[p.id]=true;});render();setConn(true);setWork(false,'Listo');log(paginas.length+' paginas');}catch(e){el('status').innerText='Error: '+e.message;}}
 function render(){let e=el('lista');if(!e)return;e.innerHTML=paginas.map(p=>`<div class="card"><img src="${p.picture?.data?.url||''}" class="avatar"><div style="flex:1"><b>${p.name}</b><br><small>${p.id}</small></div><span class="badge green" id="badge-${p.id}">0</span><div class="toggle ${conectadas[p.id]?'on':''}" onclick="conectadas['${p.id}']=!conectadas['${p.id}'];render()"></div></div>`).join('');}
 async function fetchAllPostsDeep(pageId,pToken,limitStr){let all=[];let url=`https://graph.facebook.com/v21.0/${pageId}/feed?fields=id,created_time&limit=50&access_token=${pToken}`;let count=0;let isAll=limitStr==='all';let limit=isAll?1000:parseInt(limitStr)||200;while(url&&count<limit){let r=await fetch(url);let j=await r.json();if(j.error)break;if(!j.data)break;all=all.concat(j.data);count+=j.data.length;if(!isAll&&count>=limit)break;url=j.paging?.next;if(isAll&&count>=1000)break;}return isAll?all:all.slice(0,limit);}
 async function scanOnePostDeep(post,p,seenGlobal,doDeep){
  try{
   let comments=[];let urlC=`https://graph.facebook.com/v21.0/${post.id}/comments?fields=id,from{name,id},message,created_time,comments{from},is_hidden,comment_count&filter=stream&limit=100&access_token=${p.access_token}`;
   let top=[];
-  while(urlC){let rc=await fetch(urlC);let jc=await rc.json();if(!jc.data)break;for(let c of jc.data){if(seenGlobal.has(c.id))continue;seenGlobal.add(c.id);if(respondidos.has(c.id))continue;if(c.from&&c.from.id===p.id)continue;if(c.is_hidden)continue;if(c.comments&&c.comments.data&&c.comments.data.some(r=>r.from.id===p.id)){respondidos.add(c.id);continue;}comments.push({pageId:p.id,pageName:p.name,postId:post.id,commentId:c.id,message:c.message,fromName:c.from?.name||'amigo',time:c.created_time,pToken:p.access_token,isReply:false});top.push(c);}urlC=jc.paging?.next;}
-  if(doDeep){for(let parent of top){if(parent.comment_count>0){try{let urlR=`https://graph.facebook.com/v21.0/${parent.id}/comments?fields=id,from{name,id},message,created_time,is_hidden&limit=100&access_token=${p.access_token}`;while(urlR){let rr=await fetch(urlR);let jr=await rr.json();if(!jr.data)break;for(let rep of jr.data){if(seenGlobal.has(rep.id))continue;seenGlobal.add(rep.id);if(respondidos.has(rep.id))continue;if(rep.from&&rep.from.id===p.id)continue;if(rep.is_hidden)continue;comments.push({pageId:p.id,pageName:p.name,postId:post.id,commentId:rep.id,message:rep.message,fromName:rep.from?.name||'amigo',time:rep.created_time,pToken:p.access_token,isReply:true});}urlR=jr.paging?.next;}}catch(e){}}}}}
+  while(urlC){let rc=await fetch(urlC);let jc=await rc.json();if(!jc.data)break;for(let c of jc.data){if(seenGlobal.has(c.id))continue;seenGlobal.add(c.id);if(respondidos.has(c.id))continue;if(c.from&&c.from.id===p.id)continue;if(c.is_hidden)continue;if(c.comments&&c.comments.data&&c.comments.data.some(r=>r.from.id===p.id)){respondidos.add(c.id);continue;}comments.push({pageId:p.id,pageName:p.name,postId:post.id,commentId:c.id,message:c.message,fromName:c.from?.name||'amigo',time:c.created_time,pToken:p.access_token});top.push(c);}urlC=jc.paging?.next;}
+  if(doDeep){for(let parent of top){if(parent.comment_count>0){try{let urlR=`https://graph.facebook.com/v21.0/${parent.id}/comments?fields=id,from{name,id},message,created_time,is_hidden&limit=100&access_token=${p.access_token}`;while(urlR){let rr=await fetch(urlR);let jr=await rr.json();if(!jr.data)break;for(let rep of jr.data){if(seenGlobal.has(rep.id))continue;seenGlobal.add(rep.id);if(respondidos.has(rep.id))continue;if(rep.from&&rep.from.id===p.id)continue;if(rep.is_hidden)continue;comments.push({pageId:p.id,pageName:p.name,postId:post.id,commentId:rep.id,message:rep.message,fromName:rep.from?.name||'amigo',time:rep.created_time,pToken:p.access_token});}urlR=jr.paging?.next;}}catch(e){}}}}}
   return comments;}catch(e){return [];}
 }
 async function scanAllPages(isAuto=false){
@@ -55,7 +79,7 @@ async function scanAllPages(isAuto=false){
  let limitStr=el('limitPosts').value||'all';let doDeep=el('deepCheck')?.checked;
  if(!isAuto){pendientes=[];}
  let scanTotal=activas.length*(limitStr==='all'?1000:parseInt(limitStr));let scanDone=0;
- if(!isAuto){setWork(true,`Escaneando TODO...`);el('progScan').style.width='0%';el('pendLista').innerHTML='<div style="padding:20px;text-align:center">Escaneando TODO + recientes...</div>';}
+ if(!isAuto){setWork(true,`Escaneando TODO...`);el('progScan').style.width='0%';el('pendLista').innerHTML='<div style="padding:20px;text-align:center">Escaneando TODO...</div>';}
  let seenGlobal=new Set();let tempPorPagina={};
  for(let pageId of activas){
   let p=pageTokens[pageId];if(!p)continue;let posts=await fetchAllPostsDeep(pageId,p.access_token,limitStr);let idx=0;let collected=[];while(idx<posts.length){let batch=posts.slice(idx,idx+3);let results=await Promise.all(batch.map(post=>scanOnePostDeep(post,p,seenGlobal,doDeep)));for(let arr of results){for(let c of arr){if(!collected.some(x=>x.commentId===c.commentId))collected.push(c);} scanDone++;el('progScan').style.width=Math.min(100,(scanDone/scanTotal*100))+'%';el('statScan').innerText=scanDone;}idx+=3;}
@@ -66,8 +90,8 @@ async function scanAllPages(isAuto=false){
  if(intercalado){let max=Math.max(...Object.values(tempPorPagina).map(a=>a.length),0);for(let i=0;i<max;i++){for(let pid of activas){let arr=tempPorPagina[pid];if(arr&&arr[i])finalCola.push(arr[i]);}}}else{for(let pid of activas){let arr=tempPorPagina[pid];if(arr)finalCola=finalCola.concat(arr);}finalCola.sort((a,b)=> new Date(a.time)-new Date(b.time));}
  if(isAuto){for(let c of finalCola){if(!pendientes.some(x=>x.commentId===c.commentId))pendientes.push(c);}}else{pendientes=finalCola;}
  actualizarContadores();
- el('pendLista').innerHTML=pendientes.slice(0,600).map((p,i)=>`<div class="card" id="card-${p.commentId}"><div style="flex:1"><small style="color:#ffd700">#${i+1} | ${p.pageName} | ${new Date(p.time).toLocaleDateString()} ${new Date(p.time).toLocaleTimeString()}</small><br><b>${p.fromName}</b>: "${(p.message||'').substring(0,90)}"</div></div>`).join('')||'Sin pendientes';
- el('progScan').style.width='100%';setWork(false,` ${pendientes.length} TODO viejos primero`);log(`Scan TODO: ${pendientes.length} viejos primero incluye recientes`);
+ el('pendLista').innerHTML=pendientes.slice(0,600).map((p,i)=>`<div class="card" id="card-${p.commentId}"><div style="flex:1"><small style="color:#ffd700">#${i+1} | ${p.pageName} | ${new Date(p.time).toLocaleDateString()}</small><br><b>${p.fromName}</b>: "${(p.message||'').substring(0,90)}"</div></div>`).join('')||'Sin pendientes';
+ el('progScan').style.width='100%';setWork(false,` ${pendientes.length} TODO viejos primero`);log(`Scan TODO: ${pendientes.length} viejos primero`);
 }
 function toggleAuto(){if(pendientes.length===0){alert('Scan primero');return;}let btn=el('btnAuto');if(auto){auto=false;clearTimeout(timer);clearInterval(countdownTimer);clearInterval(autoScanTimer);btn.innerText='Activar 90s anti-spam viejos primero';btn.className='btn btn-green';setWork(false,'Pausado');return;}auto=true;btn.innerText='Pausar anti-spam';btn.className='btn btn-red';setWork(true,'Anti-Spam activo...');autoScanTimer=setInterval(()=>{if(el('autoScanCheck').checked)scanAllPages(true);},20*60*1000);responderNext();}
 async function responderNext(){
@@ -76,7 +100,7 @@ async function responderNext(){
  let it=pendientes.shift();actualizarContadores();let delay=getDelay();
  try{
   let msg=getSmartMsg(it.fromName);
-  log(`Responder [${it.pageName}] ${it.fromName} viejo ${new Date(it.time).toLocaleDateString()}`);
+  log(`Responder [${it.pageName}] ${it.fromName}`);
   let rp=await fetch(`https://graph.facebook.com/v21.0/${it.commentId}/comments?method=POST&message=${encodeURIComponent(msg)}&access_token=${it.pToken}`,{method:'POST'});
   let jr=await rp.json();
   if(jr.id){
@@ -89,14 +113,17 @@ async function responderNext(){
    }
   }else{
    if(jr.error?.code===368||jr.error?.code===80004||(jr.error?.message||'').includes('spam')){
-    log(`SPAM #368 - Pausa 15min`);
-    spamPauseUntil=Date.now()+15*60*1000;
-    pendientes.unshift(it);
-    el('txtAntiSpam').innerText=`Pausa spam 15min`;
+    log(`SPAM #368 - Pausa 15min`); spamPauseUntil=Date.now()+15*60*1000; pendientes.unshift(it); el('txtAntiSpam').innerText=`Pausa spam 15min`;
    }else{log(`Fallo ${jr.error?.message} - Reencolado`);pendientes.push(it);}
   }
  }catch(e){log(`Error ${e.message}`);pendientes.push(it);}
  el('txtTimer').innerText=`${delay}s`;let left=delay;el('txtNext').innerText=`Proximo ${left}s - Quedan ${pendientes.length}`;clearInterval(countdownTimer);countdownTimer=setInterval(()=>{left--;if(left>=0)el('txtNext').innerText=`Proximo ${left}s - Quedan ${pendientes.length}`;else clearInterval(countdownTimer);},1000);timer=setTimeout(responderNext,delay*1000);
 }
-(function(){if(localStorage.getItem('ice_login')==='ok'){el('loginUserBox').style.display='none';el('loginBox').style.display='block';}let s=localStorage.getItem('fb_token');if(s)el('token').value=s;})();
+(function(){
+ // Auto login si ya estaba logueado
+ if(localStorage.getItem('ice_login')==='ok'){ el('loginUserBox').style.display='none'; el('loginBox').style.display='block'; }
+ let s=localStorage.getItem('fb_token'); if(s) el('token').value=s;
+ // Enter para login
+ document.addEventListener('keydown',function(e){ if(e.key==='Enter'){ let box=el('loginUserBox'); if(box && box.style.display!=='none'){ doLogin(); } } });
+})();
 </script></body></html>
