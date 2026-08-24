@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ICE CREAM - Dashboard FIX TOKEN</title>
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ICE CREAM - MANAGER</title>
 <style>
 body{background:#0a0a0a;color:#fff;font-family:system-ui;padding:14px;max-width:1300px;margin:auto}
 .header-bar{background:#000;border:1px solid #222;border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:14px}
@@ -392,11 +392,73 @@ async function responderNext(){
  let def=`${yyyy}-${mm}-${dd}`;
  if(el('videoProgramDate') && !el('videoProgramDate').value) el('videoProgramDate').value=def;
  if(el('imagenProgramDate') && !el('imagenProgramDate').value) el('imagenProgramDate').value=def;
- // Listeners
- let vi=el('videoInterval'); if(vi) vi.addEventListener('change', updateVideoSchedulePreview);
- let ii=el('imagenInterval'); if(ii) ii.addEventListener('change', updateImagenSchedulePreview);
- let vd=el('videoProgramDate'); if(vd) vd.addEventListener('change', updateVideoSchedulePreview);
- let id=el('imagenProgramDate'); if(id) id.addEventListener('change', updateImagenSchedulePreview);
+ // Listeners - actualizacion en el momento
+ let vi=el('videoInterval'); 
+ if(vi){ 
+  vi.addEventListener('change', ()=>{ updateVideoSchedulePreview(); actualizarTodasLasListasVideo(); });
+  vi.addEventListener('input', ()=>{ updateVideoSchedulePreview(); actualizarTodasLasListasVideo(); });
+ }
+ let ii=el('imagenInterval'); 
+ if(ii){ 
+  ii.addEventListener('change', ()=>{ updateImagenSchedulePreview(); actualizarTodasLasListasImagen(); });
+  ii.addEventListener('input', ()=>{ updateImagenSchedulePreview(); actualizarTodasLasListasImagen(); });
+ }
+ let vd=el('videoProgramDate'); 
+ if(vd){ 
+  vd.addEventListener('change', ()=>{ updateVideoSchedulePreview(); actualizarTodasLasListasVideo(); });
+  vd.addEventListener('input', ()=>{ updateVideoSchedulePreview(); actualizarTodasLasListasVideo(); });
+ }
+ let id=el('imagenProgramDate'); 
+ if(id){ 
+  id.addEventListener('change', ()=>{ updateImagenSchedulePreview(); actualizarTodasLasListasImagen(); });
+  id.addEventListener('input', ()=>{ updateImagenSchedulePreview(); actualizarTodasLasListasImagen(); });
+ }
+
+ function actualizarTodasLasListasVideo(){
+  // Si ya hay archivos cargados, recalcular horarios al momento
+  Object.keys(videoFilesByPage).forEach(pageId=>{
+   let files=videoFilesByPage[pageId];
+   if(files && files.length>0){
+    let listEl=el(`video-list-${pageId}`);
+    if(listEl){
+     let dateStr=el('videoProgramDate').value||'sin fecha';
+     let chosenInterval=parseInt(el('videoInterval')?.value||'120');
+     let schedule=getScheduleSlots(dateStr, files.length, 8, chosenInterval);
+     listEl.innerHTML=files.map((f,i)=>{
+      let name=f.name.replace(/\.mp4$/i,'');
+      let time=schedule[i]||'';
+      return `<div class="file-row"><span>📹 ${name}</span><small style="color:#4ade80">${time}</small></div>`;
+     }).join('');
+    }
+   }
+  });
+  // Tambien actualizar listas globales
+  let allFiles=Object.values(videoFilesByPage).flat();
+  if(allFiles.length>0 && el('videoSchedulePreview')){
+   let dateStr=el('videoProgramDate').value||'sin fecha';
+   let chosenInterval=parseInt(el('videoInterval')?.value||'120');
+   let schedule=getScheduleSlots(dateStr, 6, 8, chosenInterval);
+   // preview ya lo hace updateVideoSchedulePreview
+  }
+ }
+
+ function actualizarTodasLasListasImagen(){
+  Object.keys(imagenFilesByPage).forEach(pageId=>{
+   let files=imagenFilesByPage[pageId];
+   if(files && files.length>0){
+    let listEl=el(`img-list-${pageId}`);
+    if(listEl){
+     let dateStr=el('imagenProgramDate').value||'sin fecha';
+     let chosenInterval=parseInt(el('imagenInterval')?.value||'120');
+     let schedule=getScheduleSlots(dateStr, files.length, 9, chosenInterval);
+     listEl.innerHTML=files.map((f,i)=>{
+      let time=schedule[i]||'';
+      return `<div class="file-row"><span>🖼️ ${f.name}</span><small style="color:#4ade80">${time}</small></div>`;
+     }).join('');
+    }
+   }
+  });
+ }
  // btnCargar listener extra por si onclick falla
  let btnC=el('btnCargar'); if(btnC){ btnC.addEventListener('click', cargarTodo); }
 })();
