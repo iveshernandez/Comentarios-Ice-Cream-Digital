@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ICE CREAM - MANAGER</title>
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ICE CREAM - MANAGER IVES</title>
 <style>
 body{background:#0a0a0a;color:#fff;font-family:system-ui;padding:14px;max-width:1300px;margin:auto}
 .header-bar{background:#000;border:1px solid #222;border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:14px}
@@ -171,13 +171,34 @@ function actualizarContadores(){
 }
 
 
+function getLocalDateStr(){
+ let d=new Date();
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
 function getScheduleSlots(dateStr, count, startHour, intervalMinutes){
- let isToday=false; let todayStr=new Date().toISOString().slice(0,10); if(dateStr===todayStr) isToday=true;
- let slots=[]; let now=new Date(); let startTotal=(startHour||7)*60; let endTotal=23*60; let inter=intervalMinutes||120;
+ // Usar hora local de Honduras (navegador ya esta en GMT-6)
+ let isToday=false; 
+ let todayStr=getLocalDateStr(); 
+ if(dateStr===todayStr) isToday=true;
+ let slots=[]; 
+ let now=new Date(); 
+ let startTotal=(startHour||8)*60; 
+ let endTotal=23*60; 
+ let inter=intervalMinutes||120;
  if(isToday){
-  let currentTotal=now.getHours()*60+now.getMinutes()+15; if(currentTotal<startTotal) currentTotal=startTotal;
-  let remaining=endTotal-currentTotal; let needed=(count-1)*inter;
+  let currentTotal=now.getHours()*60+now.getMinutes()+15; 
+  if(currentTotal<startTotal) currentTotal=startTotal;
+  let remaining=endTotal-currentTotal; 
+  let needed=(count-1)*inter;
   if(needed>remaining){
+   // Si hoy ya es tarde, auto ajustar para que quepan hoy hasta 11PM
+   if(remaining<=0){
+    // Ya paso 11PM, empezar manana a las 8AM
+    isToday=false;
+    let current=startTotal;
+    for(let i=0;i<count;i++){ let h=Math.floor(current/60); let m=current%60; slots.push({hour:h, minute:m, total:current}); current+=inter; }
+    return {slots:slots, interval:inter, isToday:false, chosen:intervalMinutes};
+   }
    if(inter>45){ inter=45; needed=(count-1)*45; if(needed>remaining){ inter=Math.floor(remaining/(count-1)); if(inter<15) inter=15; } }
    else{ inter=Math.floor(remaining/(count-1)); if(inter<15) inter=15; }
   }
@@ -190,8 +211,14 @@ function getScheduleSlots(dateStr, count, startHour, intervalMinutes){
  return {slots:slots, interval:inter, isToday:isToday, chosen:intervalMinutes};
 }
 function formatSlot(dateStr, slotObj){
- let d=new Date(dateStr+'T00:00:00'); let h=slotObj.hour; let m=slotObj.minute||0;
- let yyyy=d.getFullYear(); let mm=String(d.getMonth()+1).padStart(2,'0'); let dd=String(d.getDate()).padStart(2,'0');
+ // No usar new Date para evitar desfase UTC - usar dateStr directo
+ let h=slotObj.hour; let m=slotObj.minute||0;
+ let yyyy=dateStr.slice(0,4); let mm=dateStr.slice(5,7); let dd=dateStr.slice(8,10);
+ // Si dateStr no es YYYY-MM-DD, intentar parsear igual
+ if(!yyyy || isNaN(parseInt(yyyy))){
+  let d=new Date(dateStr);
+  yyyy=d.getFullYear(); mm=String(d.getMonth()+1).padStart(2,'0'); dd=String(d.getDate()).padStart(2,'0');
+ }
  return {date:`${yyyy}-${mm}-${dd}`, hour:h, minute:m, display:`${yyyy}-${mm}-${dd} ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`};
 }
 
@@ -271,14 +298,24 @@ function updateVideoSchedulePreview(){
  let dateStr=el('videoProgramDate').value; if(!dateStr) return;
  let chosenInterval=parseInt(el('videoInterval')?.value||'120'); let schedule=getScheduleSlots(dateStr, 6, 8, chosenInterval);
  let preview=el('videoSchedulePreview'); if(!preview) return;
- let html=`<b>Fecha video: ${dateStr} | Cada ${schedule.interval}min desde 7AM hasta 11PM - Todas hoy</b><br>`;
- schedule.slots.forEach((slot,i)=>{ let fmt=formatSlot(dateStr, slot); html+=`Video ${i+1}: ${fmt.display}<br>`; }); preview.innerHTML=html;
+ let isTodayText = schedule.isToday ? ` - HOY ${getLocalDateStr()} ${new Date().toLocaleTimeString()} - auto ajustado` : ' - Todas hoy';
+ let html=`<b>Fecha video: ${dateStr} | Cada ${schedule.interval}min desde 8AM hasta 11PM${isTodayText}</b><br>`;
+ schedule.slots.forEach((slot,i)=>{ let fmt=formatSlot(dateStr, slot); html+=`Video ${i+1}: ${fmt.display}<br>`; }); 
+ html+=`<small>Todas hoy hasta 11PM. Si hoy tarde y no caben 6 (15:00,17:00,19:00,21:00,23:00), auto cada ${schedule.interval}min para que quepan 6 hoy.</small>`;
+ preview.innerHTML=html;
+}
+function getUnixFromSlot(dateStr, slot){
+ // Construir fecha local sin desfase UTC
+ let parts=dateStr.split('-'); // YYYY-MM-DD
+ let y=parseInt(parts[0]), m=parseInt(parts[1])-1, d=parseInt(parts[2]);
+ let dateTime=new Date(y,m,d,slot.hour, slot.minute||0, 0, 0);
+ return Math.floor(dateTime.getTime()/1000);
 }
 async function subirVideosDePagina(pageId){
  let files=videoFilesByPage[pageId]; if(!files||files.length===0){ alert('Carga 6 videos'); return; }
  let dateStr=el('videoProgramDate').value; if(!dateStr){ alert('Fecha video'); return; }
  let p=pageTokens[pageId]; let schedule=getScheduleSlots(dateStr, files.length, 8, parseInt(el('videoInterval')?.value||'120')); let useScheduling=el('videoUseScheduling').checked;
- for(let i=0;i<files.length;i++){ let file=files[i]; let title=cleanFileName(file.name); let slot=schedule.slots[i]; let fmt=formatSlot(dateStr, slot); let dateTime=new Date(fmt.date+'T00:00:00'); dateTime.setHours(fmt.hour, fmt.minute||0,0,0); let unix=Math.floor(dateTime.getTime()/1000); logVideo(`📤 [${p.name}] "${title}" → ${fmt.display}`); let fd=new FormData(); fd.append('source', file); fd.append('title', title); fd.append('description', title); fd.append('access_token', p.access_token); if(useScheduling){ fd.append('scheduled_publish_time', unix); fd.append('published','false'); } try{ let resp=await fetch(`https://graph.facebook.com/v21.0/${pageId}/videos`, {method:'POST', body: fd}); let j=await resp.json(); if(j.id){ logVideo(`✅ OK ${title} ${fmt.display}`); }else{ logVideo(`❌ ${title}: ${j.error?.message}`); } await new Promise(r=>setTimeout(r,1500)); }catch(e){ logVideo(`❌ ${title}: ${e.message}`); } }
+ for(let i=0;i<files.length;i++){ let file=files[i]; let title=cleanFileName(file.name); let slot=schedule.slots[i]; let fmt=formatSlot(dateStr, slot); let unix=getUnixFromSlot(fmt.date, slot); logVideo(`📤 [${p.name}] "${title}" → ${fmt.display} (unix ${unix})`); let fd=new FormData(); fd.append('source', file); fd.append('title', title); fd.append('description', title); fd.append('access_token', p.access_token); if(useScheduling){ fd.append('scheduled_publish_time', unix); fd.append('published','false'); } try{ let resp=await fetch(`https://graph.facebook.com/v21.0/${pageId}/videos`, {method:'POST', body: fd}); let j=await resp.json(); if(j.id){ logVideo(`✅ OK ${title} ${fmt.display}`); }else{ logVideo(`❌ ${title}: ${j.error?.message}`); } await new Promise(r=>setTimeout(r,1500)); }catch(e){ logVideo(`❌ ${title}: ${e.message}`); } }
 }
 async function subirTodosLosVideos(){
  let dateStr=el('videoProgramDate').value; if(!dateStr){ alert('Fecha video'); return; }
@@ -287,7 +324,7 @@ async function subirTodosLosVideos(){
  let schedule=getScheduleSlots(dateStr, 6, 8, parseInt(el('videoInterval')?.value||'120'));
  el('videoStatus').innerText=`Subiendo ${total} videos - ${dateStr} cada ${schedule.interval}min`; let done=0;
  for(let pageId of pages){ let files=videoFilesByPage[pageId]; if(!files) continue; let p=pageTokens[pageId]; let useScheduling=el('videoUseScheduling').checked;
-  for(let i=0;i<files.length;i++){ let file=files[i]; let title=cleanFileName(file.name); let slot=schedule.slots[i]; let fmt=formatSlot(dateStr, slot); let dateTime=new Date(fmt.date+'T00:00:00'); dateTime.setHours(fmt.hour,fmt.minute||0,0,0); let unix=Math.floor(dateTime.getTime()/1000); let fd=new FormData(); fd.append('source', file); fd.append('title', title); fd.append('description', title); fd.append('access_token', p.access_token); if(useScheduling){ fd.append('scheduled_publish_time', unix); fd.append('published','false'); } try{ let resp=await fetch(`https://graph.facebook.com/v21.0/${pageId}/videos`, {method:'POST', body: fd}); let j=await resp.json(); done++; el('progVideo').style.width=Math.round(done/total*100)+'%'; if(j.id){ logVideo(`✅ ${done}/${total} ${title} ${fmt.display}`); }else{ logVideo(`❌ ${title}: ${j.error?.message}`); } await new Promise(r=>setTimeout(r,1500)); }catch(e){ logVideo(`❌ ${title}: ${e.message}`); done++; } }
+  for(let i=0;i<files.length;i++){ let file=files[i]; let title=cleanFileName(file.name); let slot=schedule.slots[i]; let fmt=formatSlot(dateStr, slot); let unix=getUnixFromSlot(fmt.date, slot); let fd=new FormData(); fd.append('source', file); fd.append('title', title); fd.append('description', title); fd.append('access_token', p.access_token); if(useScheduling){ fd.append('scheduled_publish_time', unix); fd.append('published','false'); } try{ let resp=await fetch(`https://graph.facebook.com/v21.0/${pageId}/videos`, {method:'POST', body: fd}); let j=await resp.json(); done++; el('progVideo').style.width=Math.round(done/total*100)+'%'; if(j.id){ logVideo(`✅ ${done}/${total} ${title} ${fmt.display}`); }else{ logVideo(`❌ ${title}: ${j.error?.message}`); } await new Promise(r=>setTimeout(r,1500)); }catch(e){ logVideo(`❌ ${title}: ${e.message}`); done++; } }
  }
  el('videoStatus').innerText=`✅ ${done}/${total} videos`; el('progVideo').style.width='100%';
 }
@@ -303,7 +340,7 @@ function renderImagenPages(){
 function handleImagenFilesForPage(pageId, input){
  let files=Array.from(input.files||[]).slice(0,6); imagenFilesByPage[pageId]=files;
  let listEl=el(`img-list-${pageId}`); let dateStr=el('imagenProgramDate').value||'sin fecha';
- let chosenInterval=parseInt(el('imagenInterval')?.value||'120'); let schedule=getScheduleSlots(dateStr, files.length, 8, chosenInterval);
+ let chosenInterval=parseInt(el('imagenInterval')?.value||'120'); let schedule=getScheduleSlots(dateStr, files.length, 9, chosenInterval);
  if(files.length===0){ listEl.innerHTML='<div style="color:#666;font-size:12px">Sin imágenes</div>'; return; }
  let html=''; files.forEach((f,i)=>{ let slot=schedule.slots[i]; let fmt=formatSlot(dateStr, slot); html+=`<div class="file-row"><div><b>🖼️ ${f.name}</b><br><small>Sin título</small></div><div style="text-align:right"><div style="color:#a855f7;font-weight:700">${fmt.display}</div><small>${schedule.interval}min</small></div></div>`; }); listEl.innerHTML=html; updateImagenSchedulePreview();
 }
@@ -311,14 +348,17 @@ function updateImagenSchedulePreview(){
  let dateStr=el('imagenProgramDate').value; if(!dateStr) return;
  let chosenInterval=parseInt(el('imagenInterval')?.value||'120'); let schedule=getScheduleSlots(dateStr, 6, 9, chosenInterval);
  let preview=el('imagenSchedulePreview'); if(!preview) return;
- let html=`<b>Fecha imagen: ${dateStr} | Cada ${schedule.interval}min desde 7AM hasta 11PM - Sin título</b><br>`;
- schedule.slots.forEach((slot,i)=>{ let fmt=formatSlot(dateStr, slot); html+=`Imagen ${i+1}: ${fmt.display}<br>`; }); preview.innerHTML=html;
+ let isTodayText = schedule.isToday ? ` - HOY ${getLocalDateStr()} ${new Date().toLocaleTimeString()} - auto ajustado` : ' - Todas hoy';
+ let html=`<b>Fecha imagen: ${dateStr} | Cada ${schedule.interval}min desde 9AM hasta 11PM${isTodayText}</b><br>`;
+ schedule.slots.forEach((slot,i)=>{ let fmt=formatSlot(dateStr, slot); html+=`Imagen ${i+1}: ${fmt.display}<br>`; }); 
+ html+=`<small>Todas hoy hasta 11PM. Si hoy tarde y no caben, auto cada ${schedule.interval}min.</small>`;
+ preview.innerHTML=html;
 }
 async function subirImagenesDePagina(pageId){
  let files=imagenFilesByPage[pageId]; if(!files||files.length===0){ alert('Carga imágenes'); return; }
  let dateStr=el('imagenProgramDate').value; if(!dateStr){ alert('Fecha imagen'); return; }
  let p=pageTokens[pageId]; let schedule=getScheduleSlots(dateStr, files.length, 9, parseInt(el('imagenInterval')?.value||'120')); let useScheduling=el('imagenUseScheduling').checked;
- for(let i=0;i<files.length;i++){ let file=files[i]; let slot=schedule.slots[i]; let fmt=formatSlot(dateStr, slot); let dateTime=new Date(fmt.date+'T00:00:00'); dateTime.setHours(fmt.hour,fmt.minute||0,0,0); let unix=Math.floor(dateTime.getTime()/1000); logImagen(`📤 [${p.name}] ${file.name} → ${fmt.display}`); let fd=new FormData(); fd.append('source', file); fd.append('access_token', p.access_token); if(useScheduling){ fd.append('scheduled_publish_time', unix); fd.append('published','false'); } try{ let resp=await fetch(`https://graph.facebook.com/v21.0/${pageId}/photos`, {method:'POST', body: fd}); let j=await resp.json(); if(j.id){ logImagen(`✅ OK ${file.name} ${fmt.display}`); }else{ logImagen(`❌ ${file.name}: ${j.error?.message}`); } await new Promise(r=>setTimeout(r,1000)); }catch(e){ logImagen(`❌ ${file.name}: ${e.message}`); } }
+ for(let i=0;i<files.length;i++){ let file=files[i]; let slot=schedule.slots[i]; let fmt=formatSlot(dateStr, slot); let unix=getUnixFromSlot(fmt.date, slot); logImagen(`📤 [${p.name}] ${file.name} → ${fmt.display}`); let fd=new FormData(); fd.append('source', file); fd.append('access_token', p.access_token); if(useScheduling){ fd.append('scheduled_publish_time', unix); fd.append('published','false'); } try{ let resp=await fetch(`https://graph.facebook.com/v21.0/${pageId}/photos`, {method:'POST', body: fd}); let j=await resp.json(); if(j.id){ logImagen(`✅ OK ${file.name} ${fmt.display}`); }else{ logImagen(`❌ ${file.name}: ${j.error?.message}`); } await new Promise(r=>setTimeout(r,1000)); }catch(e){ logImagen(`❌ ${file.name}: ${e.message}`); } }
 }
 async function subirTodasLasImagenes(){
  let dateStr=el('imagenProgramDate').value; if(!dateStr){ alert('Fecha imagen'); return; }
@@ -327,7 +367,7 @@ async function subirTodasLasImagenes(){
  let schedule=getScheduleSlots(dateStr, 6, 9, parseInt(el('imagenInterval')?.value||'120'));
  el('imagenStatus').innerText=`Subiendo ${total} imágenes - ${dateStr} cada ${schedule.interval}min`; let done=0;
  for(let pageId of pages){ let files=imagenFilesByPage[pageId]; if(!files) continue; let p=pageTokens[pageId]; let useScheduling=el('imagenUseScheduling').checked;
-  for(let i=0;i<files.length;i++){ let file=files[i]; let slot=schedule.slots[i]; let fmt=formatSlot(dateStr, slot); let dateTime=new Date(fmt.date+'T00:00:00'); dateTime.setHours(fmt.hour,fmt.minute||0,0,0); let unix=Math.floor(dateTime.getTime()/1000); let fd=new FormData(); fd.append('source', file); fd.append('access_token', p.access_token); if(useScheduling){ fd.append('scheduled_publish_time', unix); fd.append('published','false'); } try{ let resp=await fetch(`https://graph.facebook.com/v21.0/${pageId}/photos`, {method:'POST', body: fd}); let j=await resp.json(); done++; el('progImagen').style.width=Math.round(done/total*100)+'%'; if(j.id){ logImagen(`✅ ${done}/${total} ${file.name} ${fmt.display}`); }else{ logImagen(`❌ ${file.name}: ${j.error?.message}`); } await new Promise(r=>setTimeout(r,1000)); }catch(e){ logImagen(`❌ ${file.name}: ${e.message}`); done++; } }
+  for(let i=0;i<files.length;i++){ let file=files[i]; let slot=schedule.slots[i]; let fmt=formatSlot(dateStr, slot); let unix=getUnixFromSlot(fmt.date, slot); let fd=new FormData(); fd.append('source', file); fd.append('access_token', p.access_token); if(useScheduling){ fd.append('scheduled_publish_time', unix); fd.append('published','false'); } try{ let resp=await fetch(`https://graph.facebook.com/v21.0/${pageId}/photos`, {method:'POST', body: fd}); let j=await resp.json(); done++; el('progImagen').style.width=Math.round(done/total*100)+'%'; if(j.id){ logImagen(`✅ ${done}/${total} ${file.name} ${fmt.display}`); }else{ logImagen(`❌ ${file.name}: ${j.error?.message}`); } await new Promise(r=>setTimeout(r,1000)); }catch(e){ logImagen(`❌ ${file.name}: ${e.message}`); done++; } }
  }
  el('imagenStatus').innerText=`✅ ${done}/${total} imágenes`; el('progImagen').style.width='100%';
 }
