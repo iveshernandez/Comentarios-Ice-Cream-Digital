@@ -45,7 +45,7 @@ body{background:#0a0a0a;color:#fff;font-family:system-ui;padding:14px;max-width:
 <div class="grid"><div class="stat"><b id="statPag">0</b>Páginas</div><div class="stat"><b id="statPend">0</b>Pendientes (sin like)</div><div class="stat"><b id="statResp">0</b>Resp</div><div class="stat"><b id="statScan">0</b>Posts</div></div>
 <div id="lista"></div>
 <div style="background:#111;border:1px solid #333;border-radius:12px;padding:12px;margin:10px 0">
-<div style="display:flex;gap:8px;flex-wrap:wrap"><label>Posts:<select id="limitPosts" class="input" style="width:130px"><option value="100">100</option><option value="200" selected>200</option><option value="300">300</option><option value="500">500</option><option value="all">Todos</option></select></label><label>Delay:<select id="delaySelect" class="input" style="width:120px"><option value="90" selected>90s</option><option value="random">Random</option></select></label></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><label>Posts:<select id="limitPosts" class="input" style="width:130px"><option value="100">100</option><option value="200" selected>200</option><option value="300">300</option><option value="500">500</option><option value="all">Todos</option></select></label><label>Delay:<select id="delaySelect" class="input" style="width:140px"><option value="60">60s</option><option value="90" selected>90s</option><option value="alt" selected>Alternado 60/90</option><option value="random">Random 60-90</option></select></label></div>
 <div style="margin-top:6px;display:flex;gap:10px;flex-wrap:wrap"><label><input type="checkbox" id="intercaladoCheck" checked> Intercalado</label><label><input type="checkbox" id="deepCheck" checked> Deep</label><label><input type="checkbox" id="likeCheck" checked> Like al responder</label><label><input type="checkbox" id="autoScanCheck" checked> Auto 20min</label><label style="background:#052e16;border:1px solid #22c55e;padding:4px 8px;border-radius:8px"><input type="checkbox" id="usarLikeMarcaCheck" checked> 👍 Like = ya respondido (no repetir)</label></div>
 <div style="font-size:11px;color:#888;margin-top:6px">✅ No se cuentan respuestas de tus páginas, no te auto-respondes. Solo comentarios de clientes sin like de tu página aparecen.</div>
 </div>
@@ -169,7 +169,14 @@ function setWork(w,txt){let d=el('dotWork'),t=el('txtWork');if(d)d.className='do
 function log(h){let e=el('log');if(e)e.innerHTML=`<div>${new Date().toLocaleTimeString()} - ${h}</div>`+e.innerHTML;}
 function logVideo(h){let e=el('logVideo');if(e)e.innerHTML=`<div>${new Date().toLocaleTimeString()} - ${h}</div>`+e.innerHTML;}
 function logImagen(h){let e=el('logImagen');if(e)e.innerHTML=`<div>${new Date().toLocaleTimeString()} - ${h}</div>`+e.innerHTML;}
-function getDelay(){let v=el('delaySelect')?.value||'90'; if(v==='random') return 75+Math.floor(Math.random()*45); return parseInt(v)||90;}
+let ultimoDelay=60;
+function getDelay(){
+ let v=el('delaySelect')?.value||'alt';
+ if(v==='random'){ return 60+Math.floor(Math.random()*31); }
+ if(v==='alt'){ ultimoDelay = (ultimoDelay===60?90:60); return ultimoDelay; }
+ let n=parseInt(v); if(n===60||n===90) return n;
+ return 60;
+}
 function cleanFileName(name){ let noExt = name.replace(/\.[^/.]+$/, ''); return noExt.trim(); }
 function getSmartMsg(n){
  let nombre=(n||'amigo').trim(); let usadas=respuestasUsadasPorUsuario[nombre]||[];
@@ -274,49 +281,96 @@ async function fetchAllPostsDeep(pageId,pToken,limitStr){
  for(let baseUrl of urls){ let url=baseUrl; let count=0; while(url && count<limit){ try{ let r=await fetch(url); let j=await r.json(); if(j.error) break; if(!j.data||j.data.length===0) break; for(let post of j.data){ if(!all.some(p=>p.id===post.id)){ all.push(post); count++; } if(count>=limit) break; } if(count>=limit) break; url=j.paging?.next||null; if(!url) break; }catch(e){ break; } } if(all.length>=limit) break; }
  return all.slice(0,limit);
 }
+// NUEVA LOGICA ROBUSTA - detecta nuevos y viejos sin duplicar
+function esComentarioDePagina(fromId){
+ if(!fromId) return false;
+ if(pageTokens[fromId]) return true;
+ return paginas.some(p=>p.id===fromId);
+}
+function tieneLikeDePagina(likesData, pageId){
+ if(!likesData || !likesData.data) return false;
+ return likesData.data.some(l=> esComentarioDePagina(l.id) || l.id===pageId );
+}
+function tieneRespuestaDePagina(commentsData){
+ if(!commentsData || !commentsData.data) return false;
+ return commentsData.data.some(r=> r.from && esComentarioDePagina(r.from.id));
+}
+
 async function scanOnePostDeep(post,p,seenGlobal,doDeep,forzar=false,usarLikeMarca=true){
  try{
   let comments=[];
-  let urls=[
-   `https://graph.facebook.com/v21.0/${post.id}/comments?fields=id,from{name,id},message,created_time,comments{from{id,name}},is_hidden,comment_count,likes{id,name},like_count&filter=stream&limit=100&order=reverse_chronological&access_token=${p.access_token}`,
-   `https://graph.facebook.com/v21.0/${post.id}/comments?fields=id,from{name,id},message,created_time,comments{from{id,name}},is_hidden,comment_count,likes{id,name}&limit=100&access_token=${p.access_token}`
-  ];
+  // Pedimos todo lo necesario para decidir si ya está respondido
+  let baseFields="id,from{name,id},message,created_time,comments{from{id,name}},is_hidden,comment_count,likes{id,name},like_count";
+  let url=`https://graph.facebook.com/v21.0/${post.id}/comments?fields=${baseFields}&filter=stream&limit=100&order=chronological&access_token=${p.access_token}`;
   let topComments=[];
-  for(let urlC of urls){
-   let next=urlC; let tries=0;
-   while(next && tries<5){
-    try{
-     let rc=await fetch(next); let jc=await rc.json(); if(jc.error) break; if(!jc.data) break;
-     for(let c of jc.data){
-      if(seenGlobal.has(c.id)) continue; seenGlobal.add(c.id);
-      if(!forzar && (respondidos.has(c.id) || historialRespuestas[c.id])) continue;
-      // NO CONTAR RESPUESTAS DE TUS PAGINAS - no auto-responderte
-      if(c.from && esComentarioDePagina(c.from.id)){ continue; }
-      if(c.is_hidden) continue;
-      // Si ya tiene like de tu página, ya está respondido
-      if(usarLikeMarca && c.likes && c.likes.data && c.likes.data.some(l=>esComentarioDePagina(l.id) || l.id===p.id)){ if(!forzar){ respondidos.add(c.id); historialRespuestas[c.id]={auto:'like marca'}; continue; } }
-      // Si ya tiene respuesta de tu página, no contar
-      if(c.comments && c.comments.data && c.comments.data.some(r=>r.from && esComentarioDePagina(r.from.id))){ if(!forzar){ respondidos.add(c.id); historialRespuestas[c.id]={auto:'ya tenia respuesta pagina'}; continue; } }
-      comments.push({pageId:p.id,pageName:p.name,postId:post.id,commentId:c.id,message:c.message,fromName:c.from?.name||'amigo',time:c.created_time,pToken:p.access_token,isReply:false});
-      topComments.push(c);
-     }
-     next=jc.paging?.next||null; tries++; if(comments.length>50) break;
-    }catch(e){ break; }
+  while(url){
+   let rc=await fetch(url);
+   let jc=await rc.json();
+   if(jc.error){ log(`⚠️ Error post ${post.id}: ${jc.error.message}`); break; }
+   if(!jc.data || jc.data.length===0) break;
+   for(let c of jc.data){
+    if(seenGlobal.has(c.id)) continue;
+    seenGlobal.add(c.id);
+    // FILTRO 1: Si el comentario ES de tu página -> nunca contar, no auto-responderte
+    if(c.from && esComentarioDePagina(c.from.id)){ continue; }
+    // FILTRO 2: Si está oculto -> ignorar
+    if(c.is_hidden) continue;
+    // FILTRO 3: Si ya lo respondiste según historial local (y no es forzado) -> ignorar
+    if(!forzar && (respondidos.has(c.id) || historialRespuestas[c.id])){ continue; }
+    // FILTRO 4: Si ya tiene like de tu página (marca de ya respondido) -> ignorar si usarLikeMarca
+    if(usarLikeMarca && tieneLikeDePagina(c.likes, p.id)){
+     if(!forzar){ respondidos.add(c.id); historialRespuestas[c.id]={auto:'like marca',time:new Date().toISOString()}; guardarHistorialPermanente(); continue; }
+    }
+    // FILTRO 5: Si ya tiene respuesta de tu página (alguien de tu equipo ya respondió) -> ignorar
+    if(tieneRespuestaDePagina(c.comments)){
+     if(!forzar){ respondidos.add(c.id); historialRespuestas[c.id]={auto:'ya tenia respuesta pagina',time:new Date().toISOString()}; guardarHistorialPermanente(); continue; }
+    }
+    // Si pasa todos los filtros, es un cliente real sin responder
+    comments.push({
+     pageId:p.id,
+     pageName:p.name,
+     postId:post.id,
+     commentId:c.id,
+     message:c.message||'',
+     fromName:c.from?.name||'amigo',
+     fromId:c.from?.id||'',
+     time:c.created_time,
+     pToken:p.access_token,
+     isReply:false
+    });
+    topComments.push(c);
    }
-   if(comments.length>0) break;
+   url=jc.paging?.next||null;
+   // Para no saturar API, si ya juntamos 100 de este post, paramos este post
+   if(comments.length>=100) break;
   }
+  // DEEP: buscar replies de los topComments que también sean de clientes sin responder
   if(doDeep){
    for(let parent of topComments){
     if(parent.comment_count>0){
      try{
-      let urlR=`https://graph.facebook.com/v21.0/${parent.id}/comments?fields=id,from{name,id},message,created_time,is_hidden,likes{id}&limit=100&access_token=${p.access_token}`;
-      while(urlR){ let rr=await fetch(urlR); let jr=await rr.json(); if(!jr.data) break; for(let rep of jr.data){ if(seenGlobal.has(rep.id)) continue; seenGlobal.add(rep.id); if(!forzar && (respondidos.has(rep.id) || historialRespuestas[rep.id])) continue; if(rep.from && esComentarioDePagina(rep.from.id)) continue; if(rep.is_hidden) continue; if(usarLikeMarca && rep.likes && rep.likes.data && rep.likes.data.some(l=>esComentarioDePagina(l.id) || l.id===p.id)){ if(!forzar) continue; } comments.push({pageId:p.id,pageName:p.name,postId:post.id,commentId:rep.id,message:rep.message,fromName:rep.from?.name||'amigo',time:rep.created_time,pToken:p.access_token,isReply:true}); } urlR=jr.paging?.next||null; }
+      let urlR=`https://graph.facebook.com/v21.0/${parent.id}/comments?fields=id,from{name,id},message,created_time,is_hidden,likes{id},comments{from{id}}&limit=100&access_token=${p.access_token}`;
+      while(urlR){
+       let rr=await fetch(urlR); let jr=await rr.json(); if(!jr.data) break;
+       for(let rep of jr.data){
+        if(seenGlobal.has(rep.id)) continue; seenGlobal.add(rep.id);
+        if(rep.from && esComentarioDePagina(rep.from.id)) continue;
+        if(rep.is_hidden) continue;
+        if(!forzar && (respondidos.has(rep.id) || historialRespuestas[rep.id])) continue;
+        if(usarLikeMarca && tieneLikeDePagina(rep.likes, p.id)){ if(!forzar) continue; }
+        if(rep.comments && rep.comments.data && rep.comments.data.some(r=>r.from && esComentarioDePagina(r.from.id))){ if(!forzar) continue; }
+        comments.push({
+         pageId:p.id,pageName:p.name,postId:post.id,commentId:rep.id,message:rep.message||'',fromName:rep.from?.name||'amigo',fromId:rep.from?.id||'',time:rep.created_time,pToken:p.access_token,isReply:true
+        });
+       }
+       urlR=jr.paging?.next||null;
+      }
      }catch(e){}
     }
    }
   }
   return comments;
- }catch(e){ return []; }
+ }catch(e){ log(`❌ scanOnePost error ${e.message}`); return []; }
 }
 async function scanAllPages(isAuto=false,forzar=false){
  let activas=Object.keys(conectadas).filter(id=>conectadas[id]);if(activas.length===0){alert('Activa 1 página');return;}
@@ -324,30 +378,43 @@ async function scanAllPages(isAuto=false,forzar=false){
  let usarLikeMarca=el('usarLikeMarcaCheck') ? el('usarLikeMarcaCheck').checked : true;
  if(!isAuto){pendientes=[];}
  let scanTotal=activas.length*(limitStr==='all'?1000:parseInt(limitStr));let scanDone=0;
- if(!isAuto){setWork(true,`${forzar?'FORZADO':''} Deep scan`);el('progScan').style.width='0%';el('pendLista').innerHTML='<div style="padding:20px;text-align:center">Escaneando... (sin contar tus propias respuestas)</div>';}
- let seenGlobal=new Set();let tempPorPagina={};
+ if(!isAuto){setWork(true,`${forzar?'FORZADO':''} Scan ${limitStr}`);el('progScan').style.width='0%';el('pendLista').innerHTML='<div style="padding:20px;text-align:center">Escaneando nuevos y viejos... (sin contar tus respuestas, sin duplicar por like)</div>';}
+ let seenGlobal=new Set();let tempPorPagina={};let totalFiltradosLike=0;let totalFiltradosRespuestaPagina=0;let totalFiltradosPropios=0;
  for(let pageId of activas){
   try{
    let p=pageTokens[pageId];if(!p)continue;
-   log(`🔍 ${p.name}: buscando ${limitStr} posts... (ignorando respuestas de tus páginas)`);
+   log(`🔍 ${p.name}: buscando ${limitStr} posts - viejos+nuevos, sin duplicar`);
    let posts=await fetchAllPostsDeep(pageId,p.access_token,limitStr);
-   log(`📋 ${p.name}: ${posts.length} posts`);
+   log(`📋 ${p.name}: ${posts.length} posts encontrados`);
    let idx=0;let collected=[];
    while(idx<posts.length){
-    let batch=posts.slice(idx,idx+3);
+    let batch=posts.slice(idx,idx+2); // 2 en paralelo para no saturar
     let results=await Promise.all(batch.map(post=>scanOnePostDeep(post,p,seenGlobal,doDeep,forzar,usarLikeMarca)));
     for(let arr of results){ for(let c of arr){ if(!pendientes.some(x=>x.commentId===c.commentId)&&!collected.some(x=>x.commentId===c.commentId)){ collected.push(c); } } }
-    scanDone+=batch.length; el('progScan').style.width=Math.min(100,(scanDone/scanTotal*100))+'%'; el('statScan').innerText=scanDone; idx+=3;
+    scanDone+=batch.length; el('progScan').style.width=Math.min(100,(scanDone/scanTotal*100))+'%'; el('statScan').innerText=scanDone;
+    idx+=2;
+    await new Promise(r=>setTimeout(r,300)); // pequeña pausa para no rate limit
    }
-   collected.sort((a,b)=> new Date(a.time)-new Date(b.time)); tempPorPagina[pageId]=collected; log(`✅ ${p.name}: ${collected.length} pendientes (sin tus respuestas, sin like)`);
+   collected.sort((a,b)=> new Date(a.time)-new Date(b.time));
+   tempPorPagina[pageId]=collected;
+   log(`✅ ${p.name}: ${collected.length} clientes sin responder (sin contar tus respuestas)`);
   }catch(e){log(`❌ Error ${pageId}: ${e.message}`);}
  }
  let intercalado=el('intercaladoCheck')?.checked;let finalCola=[];
  if(intercalado){let max=Math.max(...Object.values(tempPorPagina).map(a=>a.length),0);for(let i=0;i<max;i++){for(let pid of activas){let arr=tempPorPagina[pid];if(arr&&arr[i])finalCola.push(arr[i]);}}}else{for(let pid of activas){let arr=tempPorPagina[pid];if(arr)finalCola=finalCola.concat(arr);}finalCola.sort((a,b)=> new Date(a.time)-new Date(b.time));}
- if(isAuto){for(let c of finalCola){if(!pendientes.some(x=>x.commentId===c.commentId)){pendientes.push(c);}}}else{pendientes=finalCola;}
+ if(isAuto){
+  for(let c of finalCola){ if(!pendientes.some(x=>x.commentId===c.commentId)){ pendientes.push(c); } }
+  if(finalCola.length>0) log(`🔄 AutoScan: +${finalCola.length} nuevos sin like`);
+ }else{ pendientes=finalCola; }
  actualizarContadores();
- if(pendientes.length===0){ el('pendLista').innerHTML='<div style="padding:20px;text-align:center;color:#4ade80">✅ 0 pendientes. Todos los comentarios de clientes ya tienen like o son respuestas de tus páginas (no se cuentan).</div>'; }
- el('progScan').style.width='100%';setWork(false,`✅ ${pendientes.length}`);log(`✅ Total sin contar tus respuestas: ${pendientes.length}`);
+ if(pendientes.length===0){
+  el('pendLista').innerHTML='<div style="padding:20px;text-align:center;color:#4ade80">✅ 0 pendientes. Todo cliente ya tiene like o respuesta de tu página. No hay duplicados.</div>';
+ }else{
+  // Mostrar resumen
+  let resumen=`<div style="padding:8px;background:#052e16;border:1px solid #166534;border-radius:8px;margin-bottom:8px;font-size:12px">✅ ${pendientes.length} comentarios de clientes (viejos y nuevos) sin like, sin tu respuesta. Intervalo 60/90s.</div>`;
+  el('pendLista').innerHTML=resumen + pendientes.slice(0,500).map((p,i)=>`<div class="card" id="card-${p.commentId}"><div style="flex:1"><small>#${i+1} | ${p.pageName} | ${new Date(p.time).toLocaleDateString()} ${p.isReply?'↩️ reply':''}</small><br><b>${p.fromName}</b>: "${(p.message||'').substring(0,90)}"</div><div id="check-${p.commentId}" class="check" style="display:none">✓</div></div>`).join('');
+ }
+ el('progScan').style.width='100%';setWork(false,`✅ ${pendientes.length} sin duplicar`);log(`✅ Total final sin duplicar (sin contar tus respuestas): ${pendientes.length}`);
 }
 function scanAllPagesForzado(){ if(confirm('Scan FORZADO ignorará likes y mostrará todos incluso tus propias respuestas?')){ scanAllPages(false,true); } }
 function limpiarTodoComentarios(){
@@ -362,37 +429,82 @@ function limpiarTodoVideo(){ if(!confirm('¿Limpiar Video?')) return; videoFiles
 function limpiarTodoImagen(){ if(!confirm('¿Limpiar Imagenes?')) return; imagenFilesByPage={}; el('imagenPagesContainer').innerHTML=''; renderImagenPages(); el('imagenSchedulePreview').innerHTML='Selecciona fecha imagen'; el('logImagen').innerHTML=''; el('imagenStatus').innerText=''; el('progImagen').style.width='0%'; }
 function toggleAuto(){if(pendientes.length===0){alert('Scan primero');return;}let btn=el('btnAuto');if(auto){auto=false;clearTimeout(timer);clearInterval(countdownTimer);clearInterval(autoScanTimer);btn.innerText='▶️ Activar';btn.className='btn btn-green';setWork(false,'Pausado');return;}auto=true;btn.innerText='⏸️ Pausar';btn.className='btn btn-red';setWork(true,'Activo...');autoScanTimer=setInterval(()=>{if(el('autoScanCheck').checked)scanAllPages(true,false);},20*60*1000);responderNext();}
 async function responderNext(){
- if(!auto||pendientes.length===0){auto=false;el('btnAuto').innerText='▶️ Activar';setWork(false,'Pausado');return;}
+ if(!auto||pendientes.length===0){auto=false;let btn=el('btnAuto'); if(btn){ btn.innerText='▶️ Activar'; btn.className='btn btn-green'; } setWork(false,'Pausado - 0 pendientes'); return;}
  if(Date.now()<spamPauseUntil){let wait=Math.ceil((spamPauseUntil-Date.now())/1000);el('txtNext').innerText=`Pausa anti-spam ${wait}s`;timer=setTimeout(responderNext,5000);return;}
  let it=null;
  while(pendientes.length>0){
   let cand=pendientes.shift();
-  if(esComentarioDePagina(cand.fromId || '')){ log(`⏭️ Saltando comentario de tu propia página ${cand.fromName}`); continue; }
-  if(historialRespuestas[cand.commentId]){ log(`⏭️ Ya en historial ${cand.fromName}`); respondidos.add(cand.commentId); continue; }
-  if(respondidos.has(cand.commentId)){ continue; }
-  // Verificar de nuevo que no sea respuesta de pagina (por si cambio)
-  if(cand.fromName && paginas.some(p=>p.name===cand.fromName)){ log(`⏭️ Saltando - parece nombre de tu página ${cand.fromName}`); continue; }
+  // FILTRO FINAL ANTI AUTO-RESPUESTA
+  if(esComentarioDePagina(cand.fromId)){ log(`⏭️ Saltando - es de tu página ID ${cand.fromId}`); continue; }
+  if(cand.fromName && paginas.some(p=> p.name===cand.fromName || cand.fromName.includes(p.name) || p.name.includes(cand.fromName))){ log(`⏭️ Saltando - nombre parece tu página ${cand.fromName}`); continue; }
+  if(historialRespuestas[cand.commentId]){ log(`⏭️ Ya en historial ${cand.fromName} ${cand.commentId} - no duplicar`); respondidos.add(cand.commentId); continue; }
+  if(respondidos.has(cand.commentId)){ log(`⏭️ Ya respondido set ${cand.commentId}`); continue; }
   it=cand; break;
  }
- if(!it){ auto=false; el('btnAuto').innerText='▶️ Activar'; setWork(false,'✅ Todos respondidos'); log('✅ No quedan'); return; }
+ if(!it){
+  auto=false; let btn=el('btnAuto'); if(btn){ btn.innerText='▶️ Activar'; btn.className='btn btn-green'; }
+  setWork(false,'✅ Todos respondidos sin duplicar'); log('✅ No quedan clientes por responder'); el('txtNext').innerText='Sin pendientes';
+  return;
+ }
  actualizarContadores();
  try{
-  // Doble verificación antes de responder: no auto-responderte
-  if(esComentarioDePagina(it.fromName) || paginas.some(p=>it.fromName.includes(p.name))){ log(`❌ No auto-responder a ${it.fromName} - saltando`); timer=setTimeout(responderNext,1000); return; }
   let msg=getSmartMsg(it.fromName);
-  let rp=await fetch(`https://graph.facebook.com/v21.0/${it.commentId}/comments?method=POST&message=${encodeURIComponent(msg)}&access_token=${it.pToken}`,{method:'POST'});
-  let jr=await rp.json();
-  if(jr.id){
-   respondidos.add(it.commentId); historialRespuestas[it.commentId]={name:it.fromName,msg:msg,time:new Date().toISOString(),replyId:jr.id}; totalRespHoy++; el('statResp').innerText=totalRespHoy; guardarHistorialPermanente();
-   log(`✅ ${it.fromName}: "${(it.message||'').substring(0,30)}" -> "${msg.substring(0,40)}"`);
-   if(el('likeCheck').checked){ await new Promise(r=>setTimeout(r,1500)); try{ await fetch(`https://graph.facebook.com/v21.0/${it.commentId}/likes?method=POST&access_token=${it.pToken}`,{method:'POST'}); log(`👍 Like dado - marca`); }catch(e){} }
-  }else{
-   if(jr.error?.code===368){ log(`🚨 SPAM 368 - Pausa 15min`); spamPauseUntil=Date.now()+15*60*1000; pendientes.unshift(it); }
-   else if(jr.error?.code===100){ log(`⚠️ Ya respondido FB - marcando con like`); respondidos.add(it.commentId); historialRespuestas[it.commentId]={auto:'already'}; try{ await fetch(`https://graph.facebook.com/v21.0/${it.commentId}/likes?method=POST&access_token=${it.pToken}`,{method:'POST'}); }catch(e){} guardarHistorialPermanente(); }
-   else{ log(`❌ ${it.fromName}: ${jr.error?.message}`); if(jr.error?.code!==190 && jr.error?.code!==200) pendientes.push(it); }
+  if(!msg || msg.trim().length<2){ msg=`¡Gracias por tu comentario, ${it.fromName}! 🙏`; }
+  log(`📤 Respondiendo a ${it.fromName} (${it.commentId}) -> "${msg.substring(0,40)}"...`);
+  // Intentar responder con retry
+  let intentos=0; let exito=false; let jr=null;
+  while(intentos<3 && !exito){
+   try{
+    let rp=await fetch(`https://graph.facebook.com/v21.0/${it.commentId}/comments?method=POST&message=${encodeURIComponent(msg)}&access_token=${it.pToken}`,{method:'POST'});
+    jr=await rp.json();
+    if(jr.id){ exito=true; break; }
+    // Si error, analizar
+    if(jr.error){
+     if(jr.error.code===368){ log(`🚨 SPAM 368 - Pausa 15min`); spamPauseUntil=Date.now()+15*60*1000; pendientes.unshift(it); exito=false; break; }
+     if(jr.error.code===190){ log(`❌ Token expirado`); auto=false; break; }
+     if(jr.error.code===100 && (jr.error.message||'').toLowerCase().includes('already')){ log(`⚠️ Ya respondido según FB (ya tiene respuesta) - marcando`); respondidos.add(it.commentId); historialRespuestas[it.commentId]={name:it.fromName,time:new Date().toISOString(),auto:'already replied'}; guardarHistorialPermanente(); try{ await fetch(`https://graph.facebook.com/v21.0/${it.commentId}/likes?method=POST&access_token=${it.pToken}`,{method:'POST'}); }catch(e){} exito=true; jr={already:true}; break; }
+     if(jr.error.code===4 || jr.error.code===17 || jr.error.code===80004){ // rate limit
+      log(`⏳ Rate limit, esperando 10s... intento ${intentos+1}`); await new Promise(r=>setTimeout(r,10000)); intentos++; continue;
+     }
+     // Otro error temporal, reintentar
+     log(`⚠️ Error temporal ${jr.error.code}: ${jr.error.message} - reintento ${intentos+1}/3`);
+     await new Promise(r=>setTimeout(r,2000)); intentos++; continue;
+    }
+   }catch(e){ log(`⚠️ Excepción intento ${intentos+1}: ${e.message}`); await new Promise(r=>setTimeout(r,2000)); intentos++; }
   }
- }catch(e){ log(`❌ Ex ${e.message}`); pendientes.push(it); }
- let delay=getDelay(); let left=delay; el('txtNext').innerText=`Próximo ${left}s`; clearInterval(countdownTimer); countdownTimer=setInterval(()=>{left--;if(left>=0)el('txtNext').innerText=`Próximo ${left}s - Quedan ${pendientes.length}`;else clearInterval(countdownTimer);},1000); timer=setTimeout(responderNext,delay*1000);
+  if(jr && (jr.id || jr.already)){
+   if(jr.id){
+    respondidos.add(it.commentId); historialRespuestas[it.commentId]={name:it.fromName,msg:msg,time:new Date().toISOString(),replyId:jr.id}; totalRespHoy++; el('statResp').innerText=totalRespHoy; guardarHistorialPermanente();
+    let card=el('card-'+it.commentId); let check=el('check-'+it.commentId);
+    if(card){ card.classList.add('respondido'); card.style.opacity='0.5'; card.style.textDecoration='line-through'; card.style.borderLeft='4px solid #22c55e'; }
+    if(check){ check.style.display='flex'; }
+    log(`✅ ${it.fromName} respondido + tachado ✓`);
+    // Dar like como marca para no volver a responder
+    if(el('likeCheck').checked){
+     await new Promise(r=>setTimeout(r,1200));
+     try{
+      let lr=await fetch(`https://graph.facebook.com/v21.0/${it.commentId}/likes?method=POST&access_token=${it.pToken}`,{method:'POST'});
+      let lj=await lr.json();
+      if(lj.success || !lj.error){ log(`👍 Like dado a ${it.fromName} - marca anti-duplicado`); }
+      else log(`⚠️ Like fallo ${lj.error?.message}`);
+     }catch(e){ log(`⚠️ Like ex ${e.message}`); }
+    }
+   }else{
+    log(`✅ ${it.fromName} ya estaba respondido - like como marca`);
+   }
+  }else{
+   // Falló después de 3 intentos, no perder el comentario pero poner al final
+   log(`❌ Falló responder a ${it.fromName} después de 3 intentos: ${jr?.error?.message||'desconocido'} - lo pongo al final de cola`);
+   if(jr && jr.error && jr.error.code!==190 && jr.error.code!==200 && jr.error.code!==368){
+    pendientes.push(it);
+   }
+  }
+ }catch(e){ log(`❌ Excepción responderNext ${e.message}`); pendientes.push(it); }
+ let delay=getDelay(); // 60 o 90
+ let left=delay; el('txtNext').innerText=`Próximo ${left}s (60/90) - Quedan ${pendientes.length}`; el('txtTimer').innerText=`${left}s`;
+ clearInterval(countdownTimer);
+ countdownTimer=setInterval(()=>{ left--; if(left>=0){ el('txtNext').innerText=`Próximo ${left}s (60/90) - Quedan ${pendientes.length}`; el('txtTimer').innerText=`${left}s`; } else clearInterval(countdownTimer); },1000);
+ timer=setTimeout(responderNext,delay*1000);
 }
 
 async function cargarTodo(){
