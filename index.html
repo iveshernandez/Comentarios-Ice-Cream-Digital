@@ -20,7 +20,7 @@ body{background:#0a0a0a;color:#fff;font-family:system-ui;padding:14px;max-width:
 .file-list{margin:8px 0}
 .file-row{display:flex;justify-content:space-between;align-items:center;background:#1a1a1a;border:1px solid #222;border-radius:8px;padding:8px 10px;margin:4px 0;font-size:13px}
 </style></head><body>
-<div class="header-bar"><img src="logo.png" onerror="this.style.display='none'"><div><div style="font-weight:900"><span style="color:#ffd700">ICE CREAM</span> DIGITAL <small style="background:#ffd700;color:#000;padding:2px 6px;border-radius:6px;font-size:10px">TURBO</small></div><div style="font-size:11px;color:#aaa">Dashboard 3 en 1 - No auto-respuesta - Like marca</div></div></div>
+<div class="header-bar"><img src="logo.png" onerror="this.style.display='none'"><div><div style="font-weight:900"><span style="color:#ffd700">ICE CREAM</span> DIGITAL <small style="background:#ffd700;color:#000;padding:2px 6px;border-radius:6px;font-size:10px">SMART</small></div><div style="font-size:11px;color:#aaa">Asistente inteligente de comentarios · sin duplicados ni autorrespuestas</div></div></div>
 
 <div id="loginUserBox" class="login-box"><h2 style="text-align:center;color:#ffd700">🔐 Login</h2><input id="user" class="input" placeholder="Usuario" value="Icecreamdigital" onkeydown="if(event.key==='Enter') doLogin()"><input id="pass" type="password" class="input" placeholder="Contraseña" value="Ives2020." onkeydown="if(event.key==='Enter') doLogin()"><button class="btn" style="width:100%;margin-top:8px" onclick="doLogin()">Entrar</button><p id="loginMsg" style="color:#f87171;text-align:center"></p><small style="color:#666;display:block;text-align:center;margin-top:8px">Usuario: Icecreamdigital<br>Clave: Ives2020.</small></div>
 
@@ -36,7 +36,7 @@ body{background:#0a0a0a;color:#fff;font-family:system-ui;padding:14px;max-width:
 <div class="tabs">
 <div class="tab active" onclick="switchTab('responder')">💬 Comentarios</div>
 <div class="tab" onclick="switchTab('video')">🎬 Video</div>
-<div class="tab" onclick="switchTab('imagen')">🖼️ Imagenes</div>
+<div class="tab" onclick="switchTab('imagen')">🖼️ Imágenes</div>
 <button class="btn btn-gray" style="margin-left:auto;padding:8px 14px;font-size:12px;background:#222;border:1px solid #444;color:#aaa" onclick="doLogout()">🚪 Salir</button>
 </div>
 
@@ -45,14 +45,13 @@ body{background:#0a0a0a;color:#fff;font-family:system-ui;padding:14px;max-width:
 <div class="grid"><div class="stat"><b id="statPag">0</b>Páginas</div><div class="stat"><b id="statPend">0</b>Pendientes (sin like)</div><div class="stat"><b id="statResp">0</b>Resp</div><div class="stat"><b id="statScan">0</b>Posts</div></div>
 <div id="lista"></div>
 <div style="background:#111;border:1px solid #333;border-radius:12px;padding:12px;margin:10px 0">
-<div style="display:flex;gap:8px;flex-wrap:wrap"><label>Posts:<select id="limitPosts" class="input" style="width:130px"><option value="100">100</option><option value="200" selected>200</option><option value="300">300</option><option value="500">500</option><option value="all">Todos</option></select></label><label>Delay:<select id="delaySelect" class="input" style="width:140px"><option value="60">60s</option><option value="90" selected>90s</option><option value="alt" selected>Alternado 60/90</option><option value="random">Random 60-90</option></select></label></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><label>Publicaciones:<select id="limitPosts" class="input" style="width:130px"><option value="100">100</option><option value="200">200</option><option value="300">300</option><option value="500">500</option><option value="all" selected>Todas</option></select></label><label>Delay:<select id="delaySelect" class="input" style="width:140px"><option value="60">60s</option><option value="90">90s</option><option value="alt" selected>Alternado 60/90</option><option value="random">Random 60-90</option></select></label></div>
 <div style="margin-top:6px;display:flex;gap:10px;flex-wrap:wrap"><label><input type="checkbox" id="intercaladoCheck" checked> Intercalado</label><label><input type="checkbox" id="deepCheck" checked> Deep</label><label><input type="checkbox" id="likeCheck" checked> Like al responder</label><label><input type="checkbox" id="autoScanCheck" checked> Auto 20min</label><label style="background:#052e16;border:1px solid #22c55e;padding:4px 8px;border-radius:8px"><input type="checkbox" id="usarLikeMarcaCheck" checked> 👍 Like = ya respondido (no repetir)</label></div>
 <div style="font-size:11px;color:#888;margin-top:6px">✅ No se cuentan respuestas de tus páginas, no te auto-respondes. Solo comentarios de clientes sin like de tu página aparecen.</div>
 </div>
 <div style="background:#052e16;border:1px solid #166534;border-radius:12px;padding:12px">
 <div style="display:flex;gap:8px;flex-wrap:wrap">
 <button class="btn btn-orange" onclick="scanAllPages(false,false)">⚡ Scan TODO</button>
-<button class="btn btn-gray" onclick="scanAllPages(false,true)">🔍 Scan Forzado (ignora like)</button>
 <button class="btn btn-red" style="background:#7f1d1d;color:#fff" onclick="limpiarTodoComentarios()">🧹 Limpiar - 0</button>
 </div>
 <button id="btnAuto" class="btn btn-green" style="width:100%;font-size:16px;margin-top:8px" onclick="toggleAuto()">▶️ Activar</button>
@@ -106,6 +105,7 @@ body{background:#0a0a0a;color:#fff;font-family:system-ui;padding:14px;max-width:
 <script>
 const USER_OK="Icecreamdigital"; const PASS_OK="Ives2020.";
 let token='',paginas=[],conectadas={},pageTokens={},pendientes=[],respondidos=new Set(JSON.parse(localStorage.getItem('respondidos_inter')||'[]')),totalRespHoy=parseInt(localStorage.getItem('respHoy')||'0'),auto=false,timer=null,countdownTimer=null,autoScanTimer=null,ultimoMsg='',spamPauseUntil=0;
+let identidadUsuarioId='', idsPropios=new Set(), respondiendoAhora=new Set(), scanEnCurso=false;
 const MENSAJES=[
  "¡Muchas gracias por tu comentario, {{name}}! 🙏 Nos alegra mucho leerte",
  "¡Gracias {{name}}! 😊 Que bueno que te gustó el contenido",
@@ -178,8 +178,19 @@ function getDelay(){
  return 60;
 }
 function cleanFileName(name){ let noExt = name.replace(/\.[^/.]+$/, ''); return noExt.trim(); }
-function getSmartMsg(n){
+function getSmartMsg(n, comentario=''){
  let nombre=(n||'amigo').trim(); let usadas=respuestasUsadasPorUsuario[nombre]||[];
+ let texto=(comentario||'').trim().toLowerCase();
+ let personalizadas=[];
+ if(/\?|como|cómo|donde|dónde|cuando|cuándo|cuanto|cuánto|precio|informaci[oó]n/.test(texto)) personalizadas.push(`¡Hola ${nombre}! Gracias por preguntar 🙌 Revisaremos tu consulta para darte la información correcta.`, `¡Gracias por tu pregunta, ${nombre}! 💬 Con gusto la tomamos en cuenta para orientarte correctamente.`);
+ if(/gracias|excelente|bueno|buenísimo|genial|encanta|gusta|hermoso|bendiciones|am[eé]n/.test(texto)) personalizadas.push(`¡Muchas gracias por tus palabras, ${nombre}! 🙏 Nos alegra saber que te gustó.`, `¡Qué alegría leer eso, ${nombre}! 💛 Gracias por acompañarnos y apoyar el contenido.`);
+ if(/malo|mentira|falso|no sirve|p[eé]simo|problema|queja|molest/.test(texto)) personalizadas.push(`Gracias por contarnos tu opinión, ${nombre}. La tomamos en cuenta para seguir mejorando.`, `Entendemos tu punto, ${nombre}. Gracias por expresarlo con sinceridad; nos ayuda a mejorar.`);
+ if(/jaja|jajaja|😂|🤣/.test(texto)) personalizadas.push(`😂 ¡Nos alegraste el día, ${nombre}! Gracias por comentar.`, `¡Qué bueno compartir una sonrisa contigo, ${nombre}! 😄`);
+ if(personalizadas.length){
+  let elegibles=personalizadas.filter(m=>m!==ultimoMsg && !usadas.includes(m));
+  let elegido=(elegibles.length?elegibles:personalizadas)[Math.floor(Math.random()*(elegibles.length||personalizadas.length))];
+  ultimoMsg=elegido; respuestasUsadasPorUsuario[nombre]=[...usadas,elegido].slice(-25); guardarHistorialPermanente(); return elegido;
+ }
  let disp=MENSAJES.filter(m=>m!==ultimoMsg && !usadas.includes(m));
  if(disp.length===0){ disp=MENSAJES.filter(m=>m!==ultimoMsg); respuestasUsadasPorUsuario[nombre]=[]; }
  let msg=disp[Math.floor(Math.random()*disp.length)]||MENSAJES[0]; ultimoMsg=msg;
@@ -231,8 +242,8 @@ async function subirImagenAHistoria(pageId,file,token){
 }
 function render(){ let e=el('lista'); if(!e) return; e.innerHTML=paginas.map(p=>`<div class="card"><img src="${p.picture?.data?.url||''}" class="avatar"><div style="flex:1"><b>${p.name}</b><br><small>${p.id}</small></div><span class="badge green" id="badge-${p.id}">0</span><div class="toggle ${conectadas[p.id]?'on':''}" onclick="conectadas['${p.id}']=!conectadas['${p.id}'];render()"></div></div>`).join(''); }
 let videoFilesByPage={};
-function renderVideoPages(){ let c=el('videoPagesContainer'); if(!c) return; let h=''; paginas.forEach(p=>{ h+=`<div class="page-card"><div class="page-header"><img src="${p.picture?.data?.url||''}" class="avatar"><div style="flex:1"><b>${p.name}</b><br><small>${p.id}</small></div><button class="btn btn-gray" style="font-size:12px" onclick="document.getElementById('file-${p.id}').click()">📁 Cargar</button><button class="btn btn-orange" style="font-size:12px" onclick="subirVideosDePagina('${p.id}')">🚀 Subir</button></div><div class="upload-zone" onclick="document.getElementById('file-${p.id}').click()">6 videos<input type="file" id="file-${p.id}" accept="video/*" multiple style="display:none" onchange="handleVideoFilesForPage('${p.id}',this)"></div><div class="file-list" id="list-${p.id}"><div style="color:#666;font-size:12px">Sin archivos</div></div></div>`; }); c.innerHTML=h; }
-function handleVideoFilesForPage(pid,input){ let files=Array.from(input.files||[]).slice(0,6); videoFilesByPage[pid]=files; let listEl=el(`list-${pid}`); let dateStr=el('videoProgramDate').value||'sin fecha'; let inter=parseInt(el('videoInterval')?.value||'120'); let sch=getScheduleSlots(dateStr,files.length,8,inter); if(files.length===0){ listEl.innerHTML='<div style="color:#666">Sin archivos</div>'; return; } let html=''; files.forEach((f,i)=>{ let t=cleanFileName(f.name); let slot=sch.slots[i]; let fmt=formatSlot(dateStr,slot); html+=`<div class="file-row"><div><b>🎬 ${t}</b></div><div style="text-align:right"><div style="color:#ffd700;font-weight:700">${fmt.display}</div></div></div>`; }); listEl.innerHTML=html; updateVideoSchedulePreview(); }
+function renderVideoPages(){ let c=el('videoPagesContainer'); if(!c) return; let h=''; paginas.forEach(p=>{ h+=`<div class="page-card"><div class="page-header"><img src="${p.picture?.data?.url||''}" class="avatar"><div style="flex:1"><b>${p.name}</b><br><small>${p.id}</small></div><button class="btn btn-gray" style="font-size:12px" onclick="document.getElementById('file-${p.id}').click()">📁 Cargar MP4</button><button class="btn btn-orange" style="font-size:12px" onclick="subirVideosDePagina('${p.id}')">🚀 Subir</button></div><div class="upload-zone" onclick="document.getElementById('file-${p.id}').click()">Seleccionar hasta 6 videos MP4<input type="file" id="file-${p.id}" accept="video/mp4,.mp4" multiple style="display:none" onchange="handleVideoFilesForPage('${p.id}',this)"></div><div class="file-list" id="list-${p.id}"><div style="color:#666;font-size:12px">Sin archivos</div></div></div>`; }); c.innerHTML=h; }
+function handleVideoFilesForPage(pid,input){ let elegidos=Array.from(input.files||[]); let invalidos=elegidos.filter(f=>!f.name.toLowerCase().endsWith('.mp4')); let files=elegidos.filter(f=>f.name.toLowerCase().endsWith('.mp4')).slice(0,6); videoFilesByPage[pid]=files; let listEl=el(`list-${pid}`); let dateStr=el('videoProgramDate').value||getLocalDateStr(); let inter=parseInt(el('videoInterval')?.value||'120'); let sch=getScheduleSlots(dateStr,files.length,8,inter); if(files.length===0){ listEl.innerHTML='<div style="color:#f87171">No se seleccionó ningún MP4 válido</div>'; return; } let html=invalidos.length?`<div style="color:#f87171">Se ignoraron ${invalidos.length} archivos que no son MP4</div>`:''; files.forEach((f,i)=>{ let t=cleanFileName(f.name); let slot=sch.slots[i]; let fmt=formatSlot(dateStr,slot); let mb=(f.size/1048576).toFixed(1); html+=`<div class="file-row"><div><b>🎬 ${t}</b><br><small>${mb} MB · video/mp4</small></div><div style="text-align:right"><div style="color:#ffd700;font-weight:700">${fmt.display}</div></div></div>`; }); listEl.innerHTML=html; updateVideoSchedulePreview(); }
 function updateVideoSchedulePreview(){ let dateStr=el('videoProgramDate').value; if(!dateStr) return; let inter=parseInt(el('videoInterval')?.value||'120'); let sch=getScheduleSlots(dateStr,6,8,inter); let p=el('videoSchedulePreview'); if(!p) return; let txt=`<b>Fecha video: ${dateStr} | Cada ${sch.interval}min</b><br>`; sch.slots.forEach((s,i)=>{ let f=formatSlot(dateStr,s); txt+=`Video ${i+1}: ${f.display}<br>`; }); p.innerHTML=txt; }
 async function subirVideosDePagina(pageId){
  let files=videoFilesByPage[pageId]; if(!files||files.length===0){ alert('Carga videos'); return; }
@@ -267,16 +278,8 @@ async function subirTodasLasImagenes(){
  } el('imagenStatus').innerText=`✅ ${done}/${total} PROGRAMADAS - Business > Programadas`;
 }
 
-// RESPONDER - NO AUTO-RESPUESTA + LIKE COMO MARCA
-function esComentarioDePagina(fromId){
- if(!fromId) return false;
- // Si el ID es de cualquiera de tus páginas, es tu propia respuesta -> no contar
- if(pageTokens[fromId]) return true;
- // También revisar por si el ID coincide con alguna página en lista paginas
- return paginas.some(p=>p.id===fromId);
-}
 async function fetchAllPostsDeep(pageId,pToken,limitStr){
- let all=[]; let limitIsAll=limitStr==='all'; let limit=limitIsAll?1000:parseInt(limitStr)||200;
+ let all=[]; let limitIsAll=limitStr==='all'; let limit=limitIsAll?Number.MAX_SAFE_INTEGER:parseInt(limitStr)||200;
  let urls=[`https://graph.facebook.com/v21.0/${pageId}/posts?fields=id,created_time&limit=50&access_token=${pToken}`,`https://graph.facebook.com/v21.0/${pageId}/feed?fields=id,created_time&limit=50&access_token=${pToken}`];
  for(let baseUrl of urls){ let url=baseUrl; let count=0; while(url && count<limit){ try{ let r=await fetch(url); let j=await r.json(); if(j.error) break; if(!j.data||j.data.length===0) break; for(let post of j.data){ if(!all.some(p=>p.id===post.id)){ all.push(post); count++; } if(count>=limit) break; } if(count>=limit) break; url=j.paging?.next||null; if(!url) break; }catch(e){ break; } } if(all.length>=limit) break; }
  return all.slice(0,limit);
@@ -284,8 +287,8 @@ async function fetchAllPostsDeep(pageId,pToken,limitStr){
 // NUEVA LOGICA ROBUSTA - detecta nuevos y viejos sin duplicar
 function esComentarioDePagina(fromId){
  if(!fromId) return false;
- if(pageTokens[fromId]) return true;
- return paginas.some(p=>p.id===fromId);
+ if(idsPropios.has(String(fromId)) || pageTokens[fromId]) return true;
+ return paginas.some(p=>String(p.id)===String(fromId));
 }
 function tieneLikeDePagina(likesData, pageId){
  if(!likesData || !likesData.data) return false;
@@ -341,8 +344,7 @@ async function scanOnePostDeep(post,p,seenGlobal,doDeep,forzar=false,usarLikeMar
     topComments.push(c);
    }
    url=jc.paging?.next||null;
-   // Para no saturar API, si ya juntamos 100 de este post, paramos este post
-   if(comments.length>=100) break;
+   // Continuar por todas las páginas de resultados: no cortar en 100 comentarios.
   }
   // DEEP: buscar replies de los topComments que también sean de clientes sin responder
   if(doDeep){
@@ -373,7 +375,9 @@ async function scanOnePostDeep(post,p,seenGlobal,doDeep,forzar=false,usarLikeMar
  }catch(e){ log(`❌ scanOnePost error ${e.message}`); return []; }
 }
 async function scanAllPages(isAuto=false,forzar=false){
- let activas=Object.keys(conectadas).filter(id=>conectadas[id]);if(activas.length===0){alert('Activa 1 página');return;}
+ if(scanEnCurso){ log('⏭️ Ya hay un escaneo en curso'); return; }
+ scanEnCurso=true;
+ let activas=Object.keys(conectadas).filter(id=>conectadas[id]);if(activas.length===0){scanEnCurso=false;alert('Activa 1 página');return;}
  let limitStr=el('limitPosts').value||'200';let doDeep=el('deepCheck')?.checked;
  let usarLikeMarca=el('usarLikeMarcaCheck') ? el('usarLikeMarcaCheck').checked : true;
  if(!isAuto){pendientes=[];}
@@ -414,7 +418,7 @@ async function scanAllPages(isAuto=false,forzar=false){
   let resumen=`<div style="padding:8px;background:#052e16;border:1px solid #166534;border-radius:8px;margin-bottom:8px;font-size:12px">✅ ${pendientes.length} comentarios de clientes (viejos y nuevos) sin like, sin tu respuesta. Intervalo 60/90s.</div>`;
   el('pendLista').innerHTML=resumen + pendientes.slice(0,500).map((p,i)=>`<div class="card" id="card-${p.commentId}"><div style="flex:1"><small>#${i+1} | ${p.pageName} | ${new Date(p.time).toLocaleDateString()} ${p.isReply?'↩️ reply':''}</small><br><b>${p.fromName}</b>: "${(p.message||'').substring(0,90)}"</div><div id="check-${p.commentId}" class="check" style="display:none">✓</div></div>`).join('');
  }
- el('progScan').style.width='100%';setWork(false,`✅ ${pendientes.length} sin duplicar`);log(`✅ Total final sin duplicar (sin contar tus respuestas): ${pendientes.length}`);
+ el('progScan').style.width='100%';setWork(false,`✅ ${pendientes.length} sin duplicar`);log(`✅ Total final sin duplicar (sin contar tus respuestas): ${pendientes.length}`); scanEnCurso=false;
 }
 function scanAllPagesForzado(){ if(confirm('Scan FORZADO ignorará likes y mostrará todos incluso tus propias respuestas?')){ scanAllPages(false,true); } }
 function limpiarTodoComentarios(){
@@ -428,6 +432,16 @@ function limpiarTodoComentarios(){
 function limpiarTodoVideo(){ if(!confirm('¿Limpiar Video?')) return; videoFilesByPage={}; el('videoPagesContainer').innerHTML=''; renderVideoPages(); el('videoSchedulePreview').innerHTML='Selecciona fecha'; el('logVideo').innerHTML=''; el('videoStatus').innerText=''; el('progVideo').style.width='0%'; }
 function limpiarTodoImagen(){ if(!confirm('¿Limpiar Imagenes?')) return; imagenFilesByPage={}; el('imagenPagesContainer').innerHTML=''; renderImagenPages(); el('imagenSchedulePreview').innerHTML='Selecciona fecha imagen'; el('logImagen').innerHTML=''; el('imagenStatus').innerText=''; el('progImagen').style.width='0%'; }
 function toggleAuto(){if(pendientes.length===0){alert('Scan primero');return;}let btn=el('btnAuto');if(auto){auto=false;clearTimeout(timer);clearInterval(countdownTimer);clearInterval(autoScanTimer);btn.innerText='▶️ Activar';btn.className='btn btn-green';setWork(false,'Pausado');return;}auto=true;btn.innerText='⏸️ Pausar';btn.className='btn btn-red';setWork(true,'Activo...');autoScanTimer=setInterval(()=>{if(el('autoScanCheck').checked)scanAllPages(true,false);},20*60*1000);responderNext();}
+async function sigueSinResponder(it){
+ try{
+  let url=`https://graph.facebook.com/v21.0/${it.commentId}?fields=from{id,name},is_hidden,likes.limit(100){id}&access_token=${it.pToken}`;
+  let r=await fetch(url), c=await r.json();
+  if(c.error || c.is_hidden || (c.from && esComentarioDePagina(c.from.id)) || tieneLikeDePagina(c.likes,it.pageId)) return false;
+  let repliesUrl=`https://graph.facebook.com/v21.0/${it.commentId}/comments?fields=from{id,name}&limit=100&access_token=${it.pToken}`;
+  while(repliesUrl){ let rr=await fetch(repliesUrl), j=await rr.json(); if(j.error) return false; if((j.data||[]).some(x=>x.from&&esComentarioDePagina(x.from.id))) return false; repliesUrl=j.paging?.next||null; }
+  return true;
+ }catch(e){ log(`⚠️ No se pudo verificar ${it.commentId}; se omite por seguridad`); return false; }
+}
 async function responderNext(){
  if(!auto||pendientes.length===0){auto=false;let btn=el('btnAuto'); if(btn){ btn.innerText='▶️ Activar'; btn.className='btn btn-green'; } setWork(false,'Pausado - 0 pendientes'); return;}
  if(Date.now()<spamPauseUntil){let wait=Math.ceil((spamPauseUntil-Date.now())/1000);el('txtNext').innerText=`Pausa anti-spam ${wait}s`;timer=setTimeout(responderNext,5000);return;}
@@ -439,6 +453,7 @@ async function responderNext(){
   if(cand.fromName && paginas.some(p=> p.name===cand.fromName || cand.fromName.includes(p.name) || p.name.includes(cand.fromName))){ log(`⏭️ Saltando - nombre parece tu página ${cand.fromName}`); continue; }
   if(historialRespuestas[cand.commentId]){ log(`⏭️ Ya en historial ${cand.fromName} ${cand.commentId} - no duplicar`); respondidos.add(cand.commentId); continue; }
   if(respondidos.has(cand.commentId)){ log(`⏭️ Ya respondido set ${cand.commentId}`); continue; }
+  if(respondiendoAhora.has(cand.commentId)){ log(`⏭️ Ya se está procesando ${cand.commentId}`); continue; }
   it=cand; break;
  }
  if(!it){
@@ -448,7 +463,9 @@ async function responderNext(){
  }
  actualizarContadores();
  try{
-  let msg=getSmartMsg(it.fromName);
+  respondiendoAhora.add(it.commentId);
+  if(!(await sigueSinResponder(it))){ respondidos.add(it.commentId); historialRespuestas[it.commentId]={auto:'verificación Facebook',time:new Date().toISOString()}; guardarHistorialPermanente(); log(`⏭️ ${it.fromName} ya tenía respuesta/like o era una identidad propia`); respondiendoAhora.delete(it.commentId); timer=setTimeout(responderNext,500); return; }
+  let msg=getSmartMsg(it.fromName,it.message);
   if(!msg || msg.trim().length<2){ msg=`¡Gracias por tu comentario, ${it.fromName}! 🙏`; }
   log(`📤 Respondiendo a ${it.fromName} (${it.commentId}) -> "${msg.substring(0,40)}"...`);
   // Intentar responder con retry
@@ -500,6 +517,7 @@ async function responderNext(){
    }
   }
  }catch(e){ log(`❌ Excepción responderNext ${e.message}`); pendientes.push(it); }
+ respondiendoAhora.delete(it.commentId);
  let delay=getDelay(); // 60 o 90
  let left=delay; el('txtNext').innerText=`Próximo ${left}s (60/90) - Quedan ${pendientes.length}`; el('txtTimer').innerText=`${left}s`;
  clearInterval(countdownTimer);
@@ -514,12 +532,12 @@ async function cargarTodo(){
  localStorage.setItem('fb_token',token); statusEl.innerText='⏳ Conectando...'; if(btn){ btn.innerText='⏳ Cargando...'; btn.disabled=true; }
  let allMap={};
  try{
-  let meR=await fetch(`https://graph.facebook.com/v21.0/me?fields=name&access_token=${token}`); let me=await meR.json(); if(me.error) throw new Error(me.error.message);
+  let meR=await fetch(`https://graph.facebook.com/v21.0/me?fields=id,name&access_token=${token}`); let me=await meR.json(); if(me.error) throw new Error(me.error.message); identidadUsuarioId=String(me.id||''); if(identidadUsuarioId) idsPropios.add(identidadUsuarioId);
   statusEl.innerText=`✅ Usuario: ${me.name} - Cargando páginas...`;
   let r1=await fetch(`https://graph.facebook.com/v21.0/me/accounts?fields=name,id,picture.type(large),access_token&limit=100&access_token=${token}`); let j1=await r1.json(); if(j1.error) throw new Error(j1.error.message); if(j1.data) j1.data.forEach(p=>{allMap[p.id]=p;});
   let rb=await fetch(`https://graph.facebook.com/v21.0/me/businesses?fields=id&limit=20&access_token=${token}`); let jb=await rb.json(); if(jb.data){ for(let b of jb.data){ try{ let ro=await fetch(`https://graph.facebook.com/v21.0/${b.id}/owned_pages?fields=name,id,picture.type(large)&limit=100&access_token=${token}`); let jo=await ro.json(); if(jo.data) jo.data.forEach(p=>{if(!allMap[p.id]) allMap[p.id]=p;}); }catch(e){} } }
   for(let p of Object.values(allMap)){ if(!p.access_token){ try{ let rt=await fetch(`https://graph.facebook.com/v21.0/${p.id}?fields=access_token&access_token=${token}`); let jt=await rt.json(); if(jt.access_token) p.access_token=jt.access_token; }catch(e){} } if(p.access_token) pageTokens[p.id]=p; }
-  paginas=Object.values(allMap); if(paginas.length===0){ statusEl.innerText='❌ 0 páginas'; if(btn){ btn.innerText='🔌 Cargar páginas'; btn.disabled=false; } return; }
+  paginas=Object.values(allMap); paginas.forEach(p=>idsPropios.add(String(p.id))); if(paginas.length===0){ statusEl.innerText='❌ 0 páginas'; if(btn){ btn.innerText='🔌 Cargar páginas'; btn.disabled=false; } return; }
   el('loginBox').style.display='none'; el('dashboard').style.display='block'; el('statPag').innerText=paginas.length; el('statResp').innerText=totalRespHoy; paginas.forEach(p=>{conectadas[p.id]=true;}); render(); renderVideoPages(); renderImagenPages(); setConn(true); setWork(false,'Listo'); statusEl.innerText=`✅ ${paginas.length} páginas`;
   let tomorrow=new Date(); tomorrow.setDate(tomorrow.getDate()+1); let def=`${tomorrow.getFullYear()}-${String(tomorrow.getMonth()+1).padStart(2,'0')}-${String(tomorrow.getDate()).padStart(2,'0')}`; if(el('videoProgramDate') && !el('videoProgramDate').value) el('videoProgramDate').value=def; if(el('imagenProgramDate') && !el('imagenProgramDate').value) el('imagenProgramDate').value=def; log(`✅ ${paginas.length} páginas`);
  }catch(e){ statusEl.innerText='❌ Error: '+e.message; if(btn){ btn.innerText='🔌 Cargar páginas'; btn.disabled=false; } }
